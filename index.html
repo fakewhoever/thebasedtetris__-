@@ -146,9 +146,8 @@
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
         }
         .reward-title { font-size: 12px; color: var(--gold-accent); font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .reward-desc { font-size: 11px; color: #fff; margin-bottom: 3px; line-height: 1.4; }
-        .reward-sub { font-size: 10px; color: #888; font-style: italic; margin-bottom: 8px; }
-        .reward-sub span { color: #fff; font-weight: bold; }
+        .reward-desc { font-size: 11px; color: #fff; margin-bottom: 8px; line-height: 1.4; max-width: 280px; margin-left: auto; margin-right: auto; }
+        .reward-desc b { color: var(--gold-accent); }
         
         .btn-buy-token {
             background: var(--gold-accent); color: #000; border: none;
@@ -158,17 +157,19 @@
         }
         .btn-buy-token:active { transform: scale(0.95); opacity: 0.9; }
 
-        /* HEADER FIX */
+        /* HEADER FIX - MORE SPACING */
         .lb-header { 
             display: grid; 
-            grid-template-columns: 30px 1fr 50px 60px; /* Aligns with row */
+            grid-template-columns: 40px 1fr 50px 60px; /* Increased Rank width */
             width: 100%; max-width: 340px;
             font-size: 10px; color: #666; 
             padding: 0 10px 5px 10px; 
             font-weight: bold; text-transform: uppercase; 
         }
+        /* LIST ROWS MATCH HEADER */
+        .lb-row { display: grid; grid-template-columns: 40px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
+        
         .lb-list { width: 100%; max-width: 340px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
-        .lb-row { display: grid; grid-template-columns: 30px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
         .lb-row:first-child { color: #FFD700; } 
         .lb-rank { color: #666; font-weight: bold; }
         .lb-addr { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
@@ -259,8 +260,7 @@
         
         <div class="reward-card">
             <div class="reward-title">🏆 SEASON REWARD</div>
-            <div class="reward-desc">Top 1 Player wins <b>$BASED</b> drop.</div>
-            <div class="reward-sub">Created by <span>@fakewhoever</span></div>
+            <div class="reward-desc">Top 1 player wins my creator token <b>$fakewhoever</b> drop.</div>
             <button class="btn-buy-token" onclick="openTokenLink()">VIEW TOKEN ↗</button>
         </div>
 
@@ -319,7 +319,7 @@
 
 <script>
     // --- LINK TO YOUR CREATOR TOKEN ---
-    const CREATOR_TOKEN_LINK = 'https://zora.co/@fakewhoever'; 
+    const CREATOR_TOKEN_LINK = 'https://base.app/profile/fakewhoever'; 
 
     const SUPABASE_URL = 'https://fyeczwsrzdkuoaihuovw.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZWN6d3NyemRrdW9haWh1b3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzkzNTEsImV4cCI6MjA4MTcxNTM1MX0.zPAAvHSQuls4uECEUNXSOiN-09HCzvG860LOV1OENTQ';
