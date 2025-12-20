@@ -147,7 +147,7 @@
         }
         .reward-title { font-size: 12px; color: var(--gold-accent); font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         .reward-desc { font-size: 11px; color: #fff; margin-bottom: 8px; line-height: 1.4; max-width: 280px; margin-left: auto; margin-right: auto; }
-        .reward-desc b { color: var(--gold-accent); }
+        .reward-desc b { color: var(--gold-accent); font-weight: 900; }
         
         .btn-buy-token {
             background: var(--gold-accent); color: #000; border: none;
@@ -166,8 +166,8 @@
             padding: 0 10px 5px 10px; 
             font-weight: bold; text-transform: uppercase; 
         }
-        .lb-list { width: 100%; max-width: 340px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
         .lb-row { display: grid; grid-template-columns: 40px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
+        .lb-list { width: 100%; max-width: 340px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
         .lb-row:first-child { color: #FFD700; } 
         .lb-rank { color: #666; font-weight: bold; }
         .lb-addr { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
@@ -264,7 +264,7 @@
         
         <div class="reward-card">
             <div class="reward-title">🏆 SEASON REWARD</div>
-            <div class="reward-desc">Top 1 player wins my creator token <b>$fakewhoever</b> drop.</div>
+            <div class="reward-desc">Top 1 Wins <b>500,000</b> of my creator token <b>$fakewhoever</b></div>
             <button class="btn-buy-token" onclick="openTokenLink()">VIEW TOKEN ↗</button>
         </div>
 
@@ -307,7 +307,7 @@
                     
                     <button class="menu-btn" id="btnTryAgain" onclick="restartLevel()">TRY AGAIN</button>
 
-                    <button class="menu-btn" id="btnCheckLb" onclick="openLeaderboard()">CHECK LEADERBOARD</button>
+                    <button class="menu-btn" id="btnCheckLb" onclick="openLeaderboard()">LEADERBOARD</button>
 
                     <button class="menu-btn" id="btnMenu" onclick="goToLevels()">MENU</button>
                 </div>
