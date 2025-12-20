@@ -1,7 +1,12 @@
 {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjQwODY2MywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGU4YTQwMDYyNDIwZTkwMDc3ODgwOUFjREI1YzZkNDJiZGZCOTI3NDkifQ",
+    "payload": "eyJkb21haW4iOiJ0aGViYXNlZHRldHJpcy54eXoifQ",
+    "signature": "FgUnbWlfm/6Dk6QNjE5gb8fKa6F0JmqKqsuv143y6dsYYabLMsO+FoSm1mSsKX2d/BBasdJ7Xgd3vLPm68uQsxs="
+  },
   "frame": {
-    "name": "The Based Tetris",
     "version": "1",
+    "name": "The Based Tetris",
     "iconUrl": "https://thebasedtetris.xyz/icon.png",
     "homeUrl": "https://thebasedtetris.xyz",
     "imageUrl": "https://thebasedtetris.xyz/icon.png",
@@ -26,10 +31,5 @@
     "ogTitle": "The Based Tetris",
     "ogDescription": "The hardest puzzle on Base. Pure skill. Top 1 gets the airdrop.",
     "ogImageUrl": "https://thebasedtetris.xyz/icon.png"
-  },
-  "accountAssociation": {
-    "header": "eyJmaWQiOjQwODY2MywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDFlM0QwNGY0NEE5OTk5NjQ2ZUVEN0FlN2M5RTUwMzExYUExMjhmQzUifQ",
-    "payload": "eyJkb21haW4iOiJodHRwczovL3RoZWJhc2VkdGV0cmlzLnh5eiJ9",
-    "signature": "isDYA6nYqktnzZpQ07+X7GTW+PBe0vYQIS7f2ZkyggBTGu/217O/bZrgDC6/AT4EsiFGbTijGFQ5CTNe+Z4Hnhw="
   }
 }
