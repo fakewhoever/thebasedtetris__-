@@ -16,19 +16,14 @@
         :root {
             --base-bg: #000000;
             --text-color: #fff;
-            
-            /* COLORS */
             --theme-base: #0052FF;
             --theme-zora: #7B3FE4;
             --theme-coinbase: #0052FF;
-            
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-            
             --status-yellow-bg: rgba(255, 200, 0, 0.15);
             --status-yellow-border: rgba(255, 200, 0, 0.4);
             --status-yellow-text: #ffcc00;
-            
             --status-green-bg: rgba(50, 255, 100, 0.15);
             --status-green-border: rgba(50, 255, 100, 0.4);
             --status-green-text: #55ff66;
@@ -50,20 +45,20 @@
         .wallet-container { 
             position: absolute; top: 15px; right: 15px; z-index: 200; 
             display: flex; align-items: center; gap: 8px;
+            transition: opacity 0.3s ease; /* Fade effect */
         }
         
-        /* CONNECT BUTTON (Visible when logged out) */
         .btn-connect {
-            background: rgba(0, 82, 255, 0.2); border: 1px solid var(--theme-base);
+            background: rgba(0, 82, 255, 0.3); border: 1px solid var(--theme-base);
             color: #fff; padding: 8px 16px; border-radius: 20px;
             font-size: 11px; font-weight: 800; cursor: pointer;
             transition: 0.2s; text-transform: uppercase;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .btn-connect:active { transform: scale(0.95); background: var(--theme-base); }
 
-        /* CONNECTED STATE (Visible when logged in) */
-        .connected-ui { display: none; align-items: center; gap: 5px; }
+        .connected-ui { display: none; align-items: center; gap: 6px; }
         
         .address-pill {
             background: var(--theme-base); color: #fff; 
@@ -71,19 +66,21 @@
             font-size: 11px; font-weight: 700; 
             border: 1px solid rgba(255,255,255,0.2);
             cursor: default;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
         .btn-disconnect {
-            background: rgba(255, 50, 50, 0.2); 
-            border: 1px solid rgba(255, 50, 50, 0.5);
-            color: #ffaaaa; 
-            width: 28px; height: 28px; 
+            background: rgba(255, 50, 50, 0.25); 
+            border: 1px solid rgba(255, 80, 80, 0.5);
+            color: #ffcccc; 
+            width: 26px; height: 26px; 
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: bold; cursor: pointer;
+            font-size: 12px; font-weight: bold; cursor: pointer;
             transition: 0.2s;
+            backdrop-filter: blur(5px);
         }
-        .btn-disconnect:active { background: rgba(255, 50, 50, 0.5); transform: scale(0.95); color: #fff; }
+        .btn-disconnect:active { background: rgba(255, 50, 50, 0.6); transform: scale(0.90); color: #fff; }
 
         /* STATUS PILL */
         .status-pill {
@@ -118,7 +115,7 @@
             font-size: 32px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; font-style: italic; 
             text-shadow: 0 0 20px var(--theme-base); 
             margin-bottom: 10px; text-align: center; line-height: 1.1; 
-            margin-top: 40px; 
+            margin-top: 50px; 
         }
         h2 { font-size: 24px; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; margin-top: 30px; }
         p.desc { color: #888; text-align: center; max-width: 300px; line-height: 1.4; margin-bottom: 30px; font-size: 14px; }
@@ -161,7 +158,7 @@
         /* GAME UI */
         .game-ui-header {
             flex: 0 0 auto;
-            padding-top: 50px; 
+            padding-top: 30px; /* Reduced padding since Wallet is hidden */
             padding-bottom: 5px;
             text-align: center;
             width: 100%;
@@ -207,7 +204,7 @@
 </head>
 <body class="theme-base">
 
-    <div class="wallet-container">
+    <div id="walletBox" class="wallet-container">
         <button id="btnConnect" class="btn-connect" onclick="connectWallet()">CONNECT WALLET</button>
         
         <div id="connectedUi" class="connected-ui">
@@ -308,7 +305,6 @@
     let userAddress = null;
     let localBestTimes = { 1: null, 2: null, 3: null }; 
     
-    // 1. CONNECT FUNCTION
     async function connectWallet() {
         if (typeof window.ethereum !== 'undefined') {
             try {
@@ -317,7 +313,6 @@
                     userAddress = accounts[0];
                     const shortAddr = userAddress.substring(0,6) + "..." + userAddress.substring(38);
                     
-                    // Toggle UI
                     document.getElementById('btnConnect').style.display = 'none';
                     document.getElementById('connectedUi').style.display = 'flex';
                     document.getElementById('displayAddress').innerText = shortAddr;
@@ -325,6 +320,7 @@
                     const pill = document.getElementById('statusPill');
                     pill.className = 'status-pill onchain';
                     pill.innerHTML = '🟢 RANKING & SYNC ENABLED';
+                    pill.onclick = null;
                     
                     await syncProfile();
                 }
@@ -336,18 +332,16 @@
         }
     }
 
-    // 2. DISCONNECT FUNCTION
     function disconnectWallet() {
         userAddress = null;
-        localBestTimes = { 1: null, 2: null, 3: null }; // Clear session cache
-        
-        // Reset UI
+        localBestTimes = { 1: null, 2: null, 3: null }; 
         document.getElementById('btnConnect').style.display = 'block';
         document.getElementById('connectedUi').style.display = 'none';
         
         const pill = document.getElementById('statusPill');
         pill.className = 'status-pill guest';
         pill.innerHTML = '⚠️ Score Not Saving. Connect Wallet ↗';
+        pill.onclick = connectWallet;
     }
 
     // --- SYNC ---
@@ -369,7 +363,7 @@
         } catch(e) { console.error("Sync error:", e); }
     }
 
-    // --- GAME SAVING ---
+    // --- SAVING ---
     async function saveGameResult(lvl, time) {
         if(!db || !userAddress) return;
         try {
@@ -391,9 +385,8 @@
         try {
             const { data } = await db.from('players').select(`fails_${lvl}`).eq('wallet_address', userAddress).single();
             let currentFails = data ? data[`fails_${lvl}`] : 0;
-            if(!currentFails) currentFails = 0;
             let updateData = {};
-            updateData[`fails_${lvl}`] = currentFails + 1;
+            updateData[`fails_${lvl}`] = (currentFails || 0) + 1;
             await db.from('players').update(updateData).eq('wallet_address', userAddress);
         } catch(e) { console.error("Fail save error:", e); }
     }
@@ -413,7 +406,6 @@
         try {
             const timeCol = `time_${lvl}`;
             const failCol = `fails_${lvl}`;
-            
             const { data, error } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).not(timeCol, 'is', null).order(timeCol, { ascending: true }).limit(50);
             if (error) throw error;
 
@@ -466,8 +458,19 @@
 
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+        
+        // WALLET VISIBILITY LOGIC
+        if(id === 'screen-game') {
+            document.getElementById('walletBox').style.opacity = '0';
+            document.getElementById('walletBox').style.pointerEvents = 'none';
+        } else {
+            document.getElementById('walletBox').style.opacity = '1';
+            document.getElementById('walletBox').style.pointerEvents = 'auto';
+        }
+
         const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10);
     }
+    
     function goToLevels() { updateLevelScreen(); showScreen('screen-levels'); stopGameLoop(); }
     function backToStart() { showScreen('screen-start'); }
     function openLeaderboard() { showScreen('screen-leaderboard'); loadLeaderboard(1); }
