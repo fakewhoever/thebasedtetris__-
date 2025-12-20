@@ -21,12 +21,15 @@
             --theme-coinbase: #0052FF;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
+            
             --status-yellow-bg: rgba(255, 200, 0, 0.15);
             --status-yellow-border: rgba(255, 200, 0, 0.4);
             --status-yellow-text: #ffcc00;
             --status-green-bg: rgba(50, 255, 100, 0.15);
             --status-green-border: rgba(50, 255, 100, 0.4);
             --status-green-text: #55ff66;
+            
+            --gold-accent: #FFD700;
         }
         
         * { box-sizing: border-box; }
@@ -47,7 +50,6 @@
             display: flex; align-items: center; gap: 8px;
             transition: opacity 0.3s ease;
         }
-        
         .btn-connect {
             background: rgba(0, 82, 255, 0.3); border: 1px solid var(--theme-base);
             color: #fff; padding: 8px 16px; border-radius: 20px;
@@ -58,9 +60,7 @@
             height: 32px; display: flex; align-items: center;
         }
         .btn-connect:active { transform: scale(0.95); background: var(--theme-base); }
-
         .connected-ui { display: none; align-items: center; gap: 6px; }
-        
         .address-pill {
             background: var(--theme-base); color: #fff; 
             padding: 0 16px; border-radius: 20px; height: 32px;
@@ -70,7 +70,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex; align-items: center;
         }
-        
         .btn-disconnect {
             background: rgba(255, 50, 50, 0.25); border: 1px solid rgba(255, 80, 80, 0.5);
             color: #ffcccc; width: 32px; height: 32px; border-radius: 50%;
@@ -80,6 +79,7 @@
         }
         .btn-disconnect:active { background: rgba(255, 50, 50, 0.6); transform: scale(0.90); color: #fff; }
 
+        /* STATUS PILL */
         .status-pill {
             padding: 10px 20px; border-radius: 20px; font-size: 10px; font-weight: 800;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
@@ -126,13 +126,38 @@
         .level-card.coinbase .lvl-name { color: #FFFFFF; text-shadow: 0 0 10px var(--theme-coinbase); }
         .level-card.locked .status-icon { content: "🔒"; }
 
-        .lb-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        /* LEADERBOARD & REWARD */
+        .lb-tabs { display: flex; gap: 10px; margin-bottom: 10px; }
         .lb-tab { padding: 8px 16px; border-radius: 15px; background: #111; color: #666; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid #333; }
         .lb-tab.active { background: var(--theme-base); color: #fff; border-color: var(--theme-base); }
-        .lb-user-stats { width: 100%; max-width: 340px; background: rgba(0, 82, 255, 0.15); border: 1px solid var(--theme-base); border-radius: 10px; margin-bottom: 15px; padding: 10px; display: none; }
-        .lb-user-title { font-size: 10px; color: var(--theme-base); font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .lb-user-stats { width: 100%; max-width: 340px; background: rgba(0, 82, 255, 0.15); border: 1px solid var(--theme-base); border-radius: 10px; margin-bottom: 10px; padding: 8px; display: none; }
+        .lb-user-title { font-size: 9px; color: var(--theme-base); font-weight: 900; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* REWARD CARD STYLE */
+        .reward-card {
+            width: 100%; max-width: 340px;
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.1), rgba(0,0,0,0));
+            border: 1px solid var(--gold-accent);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+        }
+        .reward-title { font-size: 12px; color: var(--gold-accent); font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .reward-desc { font-size: 11px; color: #fff; margin-bottom: 3px; line-height: 1.4; }
+        .reward-sub { font-size: 10px; color: #888; font-style: italic; margin-bottom: 8px; }
+        .btn-buy-token {
+            background: var(--gold-accent); color: #000; border: none;
+            padding: 6px 12px; border-radius: 15px;
+            font-size: 10px; font-weight: 900; cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn-buy-token:active { transform: scale(0.95); opacity: 0.9; }
+
         .lb-header { display: flex; justify-content: space-between; font-size: 10px; color: #666; padding: 0 10px 5px 10px; font-weight: bold; text-transform: uppercase; }
-        .lb-list { width: 100%; max-width: 340px; height: 250px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
+        .lb-list { width: 100%; max-width: 340px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
         .lb-row { display: grid; grid-template-columns: 30px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
         .lb-row:first-child { color: #FFD700; } 
         .lb-rank { color: #666; font-weight: bold; }
@@ -176,24 +201,9 @@
         .overlay.visible { visibility: visible; opacity: 1; }
         .score-big { font-size: 40px; font-weight: bold; margin: 10px 0 5px 0; }
         .time-display { font-size: 16px; color: #888; margin-bottom: 20px; font-family: monospace; }
-        
-        /* NEW BUTTON STYLES FOR OVERLAY */
         .overlay-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
         .menu-btn { width: 100%; max-width: 220px; padding: 12px; border-radius: 20px; border: 1px solid #444; background: #222; color: #fff; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 13px; }
-        
-        /* MINT BUTTON (GOLD) */
-        .btn-mint { 
-            background: linear-gradient(45deg, #FFD700, #FFA500); 
-            border: 1px solid #FFD700; color: #000; 
-            font-weight: 900; font-size: 14px; text-transform: uppercase;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-            animation: pulse-gold 2s infinite;
-            display: none; /* Hidden by default */
-        }
-        @keyframes pulse-gold { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-
         .btn-action { background: #fff; color: #000; border: none; }
-        
         .secondary-actions { display: flex; gap: 10px; width: 100%; max-width: 220px; }
         .secondary-actions .menu-btn { flex: 1; margin: 0; padding: 10px; font-size: 12px; }
 
@@ -236,6 +246,14 @@
             <div class="lb-tab" id="tab-2" onclick="loadLeaderboard(2)">LVL 2</div>
             <div class="lb-tab" id="tab-3" onclick="loadLeaderboard(3)">LVL 3</div>
         </div>
+        
+        <div class="reward-card">
+            <div class="reward-title">🏆 SEASON REWARD</div>
+            <div class="reward-desc">Top 1 Player wins <b>$BASED</b> drop.</div>
+            <div class="reward-sub">Price Up = Prize Up.</div>
+            <button class="btn-buy-token" onclick="openTokenLink()">BUY TOKEN ↗</button>
+        </div>
+
         <div id="userStats" class="lb-user-stats">
             <div class="lb-user-title">YOUR STATS</div>
             <div class="lb-row" style="border:none; padding:0;">
@@ -271,10 +289,10 @@
                 <div class="time-display" id="finalTimeDisplay"></div>
                 
                 <div class="overlay-btns">
-                    <button class="menu-btn btn-mint" id="btnMint" onclick="handleMint()">✨ MINT REWARD ✨</button>
-                    
                     <button class="menu-btn btn-action" id="btnNextLevel" onclick="goToLevels()" style="display:none">NEXT LEVEL ➝</button>
                     
+                    <button class="menu-btn" onclick="openLeaderboard()">LEADERBOARD / PRIZE</button>
+
                     <div class="secondary-actions">
                         <button class="menu-btn" onclick="restartLevel()">TRY AGAIN</button>
                         <button class="menu-btn" onclick="goToLevels()">MENU</button>
@@ -290,6 +308,9 @@
     </div>
 
 <script>
+    // --- CONFIG: PASTE YOUR TOKEN LINK HERE ---
+    const CREATOR_TOKEN_LINK = 'https://zora.co/invite/YOUR_PROFILE_OR_TOKEN_LINK'; 
+
     const SUPABASE_URL = 'https://fyeczwsrzdkuoaihuovw.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZWN6d3NyemRrdW9haWh1b3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzkzNTEsImV4cCI6MjA4MTcxNTM1MX0.zPAAvHSQuls4uECEUNXSOiN-09HCzvG860LOV1OENTQ';
     let db = null; try { if(window.supabase) { db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } } catch(e) { console.log("Init Error"); }
@@ -302,7 +323,6 @@
     async function recordFail(lvl) { if(!db || !userAddress) return; try { const { data } = await db.from('players').select(`fails_${lvl}`).eq('wallet_address', userAddress).single(); let currentFails = data ? data[`fails_${lvl}`] : 0; let updateData = {}; updateData[`fails_${lvl}`] = (currentFails || 0) + 1; await db.from('players').update(updateData).eq('wallet_address', userAddress); } catch(e) { console.error("Fail save error:", e); } }
     async function loadLeaderboard(lvl) { document.querySelectorAll('.lb-tab').forEach((t, i) => { if(i+1 === lvl) t.classList.add('active'); else t.classList.remove('active'); }); const list = document.getElementById('lbList'); list.innerHTML = '<div class="loading-text">Loading...</div>'; const userStatsDiv = document.getElementById('userStats'); userStatsDiv.style.display = 'none'; if(!db) { list.innerHTML = '<div class="loading-text">DB Offline</div>'; return; } try { const timeCol = `time_${lvl}`; const failCol = `fails_${lvl}`; const { data, error } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).not(timeCol, 'is', null).order(timeCol, { ascending: true }).limit(50); if (error) throw error; if(userAddress) { const { data: uData } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).eq('wallet_address', userAddress).single(); if(uData) { userStatsDiv.style.display = 'block'; document.getElementById('uAddr').innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38); const uTime = uData[timeCol]; const uFail = uData[failCol] || 0; document.getElementById('uTime').innerText = uTime ? uTime.toFixed(2) + "s" : "--"; document.getElementById('uFails').innerText = "💀 " + uFail; let foundRank = false; if(data) { data.forEach((p, idx) => { if(p.wallet_address.toLowerCase() === userAddress.toLowerCase()) { document.getElementById('uRank').innerText = "#" + (idx + 1); foundRank = true; } }); } if(!foundRank) document.getElementById('uRank').innerText = ">50"; } } list.innerHTML = ""; if(!data || data.length === 0) { list.innerHTML = '<div class="loading-text">No records yet.</div>'; return; } data.forEach((item, index) => { let addrDisplay = item.wallet_address.substring(0,6) + "..." + item.wallet_address.substring(38); let time = item[timeCol]; let fails = item[failCol] || 0; const div = document.createElement('div'); div.className = 'lb-row'; div.innerHTML = `<span class="lb-rank">#${index+1}</span><span class="lb-addr">${addrDisplay}</span><span class="lb-fails">💀 ${fails}</span><span class="lb-time">${time.toFixed(2)}s</span>`; list.appendChild(div); }); } catch(e) { console.error(e); list.innerHTML = '<div class="loading-text">Error loading scores.</div>'; } }
 
-    // --- GAME ENGINE ---
     let currentLevel = 1; let finishTime = 0; try { const save = localStorage.getItem('basedTetrisSave'); if(save) unlockedLevels = JSON.parse(save); } catch(e) {} function saveProgressLocal() { localStorage.setItem('basedTetrisSave', JSON.stringify(unlockedLevels)); } function saveProgress() { saveProgressLocal(); updateLevelScreen(); } 
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; }); if(id === 'screen-game') { document.getElementById('walletBox').style.opacity = '0'; document.getElementById('walletBox').style.pointerEvents = 'none'; } else { document.getElementById('walletBox').style.opacity = '1'; document.getElementById('walletBox').style.pointerEvents = 'auto'; } const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10); }
     function goToLevels() { updateLevelScreen(); showScreen('screen-levels'); stopGameLoop(); } function backToStart() { showScreen('screen-start'); } function openLeaderboard() { showScreen('screen-leaderboard'); loadLeaderboard(1); }
@@ -341,11 +361,7 @@
                     let fill = COLORS.ghostFill; let border = COLORS.ghostBorder; let shadow = null;
                     if(currentLevel === 2) { 
                         const pColor = getPixelColor(x, y, 2); 
-                        if (pColor) {
-                            border = pColor; 
-                            fill = 'rgba(0,0,0,0)'; 
-                            // REMOVED SHADOW/GLOW HERE FOR CLEAN LOOK
-                        }
+                        if (pColor) { border = pColor; fill = 'rgba(0,0,0,0)'; }
                     } else if (currentLevel === 3) { 
                         fill = 'rgba(255, 255, 255, 0.2)'; border = 'rgba(255, 255, 255, 0.5)'; 
                     } 
@@ -386,28 +402,26 @@
     function displayOverlay(isWin) {
         document.getElementById('finalScore').innerText = calculateScore();
         const title = document.getElementById('endTitle'); const nextBtn = document.getElementById('btnNextLevel'); const timeDisplay = document.getElementById('finalTimeDisplay');
-        const mintBtn = document.getElementById('btnMint');
         
         if (isWin) {
             title.innerText = "LEVEL COMPLETE"; timeDisplay.innerText = `TIME: ${finishTime.toFixed(2)}s`;
             let winColor = '#0052FF'; let nextLvlId = 2; if (currentLevel === 2) { winColor = '#7B3FE4'; nextLvlId = 3; } if (currentLevel === 3) { winColor = '#FFFFFF'; nextLvlId = 4; } 
             title.style.color = winColor; title.style.textShadow = `0 0 20px ${winColor}`;
             
-            // SHOW MINT BUTTON
-            mintBtn.style.display = 'flex';
-            
             if(currentLevel < 3) { nextBtn.style.display = 'flex'; nextBtn.innerText = `UNLOCK LVL ${nextLvlId} ➝`; } else { nextBtn.style.display = 'flex'; nextBtn.innerText = "SOON ➝"; }
         } else { 
             title.innerText = "GAME OVER"; title.style.color = "#fff"; title.style.textShadow = "none"; 
             nextBtn.style.display = 'none'; timeDisplay.innerText = ""; 
-            mintBtn.style.display = 'none'; // Hide mint on fail
         }
         endScreen.classList.add('visible');
     }
     
-    function handleMint() {
-        alert("Coming Soon! Minting functionality will be available in the next update.");
+    function openTokenLink() {
+        if(CREATOR_TOKEN_LINK) window.open(CREATOR_TOKEN_LINK, '_blank');
+        else alert("Token link not set yet!");
     }
+    
+    function openLeaderboard() { showScreen('screen-leaderboard'); loadLeaderboard(1); }
 
     function checkWinCondition() { if (calculateScore() >= 100) return true; return false; }
     function playerReset() { currentPiece = createPiece(); if (collide(board, currentPiece)) showEndScreen(false); }
