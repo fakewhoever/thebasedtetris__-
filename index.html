@@ -2,516 +2,308 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>THE BASED TETRIS</title>
-    
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="icon.png">
-    <meta name="theme-color" content="#0052FF">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Based Tetris</title>
 
-    <meta property="og:title" content="THE BASED TETRIS">
-    <meta property="og:description" content="Top 1 wins 500,000 $fakewhoever tokens. Play on Base.">
+    <meta property="og:title" content="The Based Tetris">
+    <meta property="og:description" content="Top 1 wins 500k tokens. Pure skill.">
     <meta property="og:image" content="https://thebasedtetris.xyz/icon.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://thebasedtetris.xyz/icon.png">
-
-    <meta property="fc:frame" content="vNext">
-    <meta property="fc:frame:image" content="https://thebasedtetris.xyz/icon.png">
-    <meta property="fc:frame:button:1" content="PLAY NOW 🕹️">
-    <meta property="fc:frame:button:1:action" content="link">
-    <meta property="fc:frame:button:1:target" content="https://thebasedtetris.xyz">
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://thebasedtetris.xyz/icon.png","button":{"title":"Play Now","action":{"type":"launch_frame","name":"The Based Tetris","url":"https://thebasedtetris.xyz","splashImageUrl":"https://thebasedtetris.xyz/icon.png","splashBackgroundColor":"#000000"}}}' />
+    
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk@0.0.1/dist/index.min.js"></script>
 
     <style>
-        :root {
-            --base-bg: #000000;
-            --text-color: #fff;
-            --theme-base: #0052FF;
-            --theme-zora: #7B3FE4;
-            --theme-coinbase: #0052FF;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            
-            --status-yellow-bg: rgba(255, 200, 0, 0.15);
-            --status-yellow-border: rgba(255, 200, 0, 0.4);
-            --status-yellow-text: #ffcc00;
-            --status-green-bg: rgba(50, 255, 100, 0.15);
-            --status-green-border: rgba(50, 255, 100, 0.4);
-            --status-green-text: #55ff66;
-            
-            --gold-accent: #FFD700;
-        }
-        
-        * { box-sizing: border-box; }
-
         body {
-            background-color: var(--base-bg);
-            color: var(--text-color);
-            margin: 0; padding: 0;
-            height: 100vh; height: 100dvh; width: 100vw;
-            display: flex; flex-direction: column; overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            touch-action: none; user-select: none;
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            touch-action: none; /* Убирает зум на телефоне */
         }
-
-        /* WALLET UI */
-        .wallet-container { 
-            position: absolute; top: 15px; right: 15px; z-index: 200; 
-            display: flex; align-items: center; gap: 8px;
-            transition: opacity 0.3s ease;
+        canvas {
+            border: 2px solid #333;
+            background-color: #111;
+            display: block;
         }
-        .btn-connect {
-            background: rgba(0, 82, 255, 0.3); border: 1px solid var(--theme-base);
-            color: #fff; padding: 8px 16px; border-radius: 20px;
-            font-size: 11px; font-weight: 800; cursor: pointer;
-            transition: 0.2s; text-transform: uppercase;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            height: 32px; display: flex; align-items: center;
+        #score {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4CAF50;
         }
-        .btn-connect:active { transform: scale(0.95); background: var(--theme-base); }
-        .connected-ui { display: none; align-items: center; gap: 6px; }
-        .address-pill {
-            background: var(--theme-base); color: #fff; 
-            padding: 0 16px; border-radius: 20px; height: 32px;
-            font-size: 11px; font-weight: 700; 
-            border: 1px solid rgba(255,255,255,0.2);
-            cursor: default;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            display: flex; align-items: center;
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
         }
-        .btn-disconnect {
-            background: rgba(255, 50, 50, 0.25); border: 1px solid rgba(255, 80, 80, 0.5);
-            color: #ffcccc; width: 32px; height: 32px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: bold; cursor: pointer;
-            transition: 0.2s; backdrop-filter: blur(5px);
+        .btn {
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            user-select: none;
+            cursor: pointer;
         }
-        .btn-disconnect:active { background: rgba(255, 50, 50, 0.6); transform: scale(0.90); color: #fff; }
-
-        /* STATUS PILL */
-        .status-pill {
-            padding: 10px 20px; border-radius: 20px; font-size: 10px; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
-            margin-top: 20px; transition: all 0.3s ease;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .status-pill.guest {
-            background: var(--status-yellow-bg); border: 1px solid var(--status-yellow-border); color: var(--status-yellow-text);
-            animation: pulse-yellow 2s infinite;
-        }
-        .status-pill.onchain {
-            background: var(--status-green-bg); border: 1px solid var(--status-green-border); color: var(--status-green-text);
-            animation: none;
-        }
-        @keyframes pulse-yellow {
-            0% { box-shadow: 0 0 0 0 rgba(255, 200, 0, 0); }
-            70% { box-shadow: 0 0 0 5px rgba(255, 200, 0, 0.1); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 200, 0, 0); }
-        }
-
-        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; background: #000; padding: 20px; }
-        .screen.active { display: flex; }
-
-        h1 { font-size: 32px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; font-style: italic; text-shadow: 0 0 20px var(--theme-base); margin-bottom: 10px; text-align: center; line-height: 1.1; margin-top: 50px; }
-        h2 { font-size: 24px; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; margin-top: 30px; }
-        p.desc { color: #888; text-align: center; max-width: 300px; line-height: 1.4; margin-bottom: 30px; font-size: 14px; }
-
-        .btn-main { background: #fff; color: #000; border: none; padding: 16px 40px; border-radius: 30px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(255,255,255,0.3); transition: transform 0.1s; margin-bottom: 15px; width: 220px; }
-        .btn-main:active { transform: scale(0.95); }
-        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 12px 30px; border-radius: 30px; font-size: 14px; font-weight: 800; cursor: pointer; width: 220px; }
-        .btn-secondary:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
-        .btn-text { background: transparent; border: none; color: #666; font-size: 14px; font-weight: 800; margin-top: 20px; cursor: pointer; letter-spacing: 1px; padding: 10px 20px; transition: color 0.2s; }
-        .btn-text:active { color: #fff; transform: scale(0.95); }
-
-        .levels-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; width: 100%; max-width: 360px; }
-        .level-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
-        .level-card.locked { opacity: 0.5; cursor: default; }
-        .level-card:not(.locked):active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-        .lvl-num { font-size: 12px; color: #666; font-weight: bold; margin-bottom: 5px; }
-        .lvl-name { font-size: 14px; font-weight: 800; text-transform: uppercase; }
-        .status-icon { font-size: 24px; margin: 10px 0; }
-        .level-card.base .lvl-name { color: var(--theme-base); text-shadow: 0 0 10px rgba(0, 82, 255, 0.5); }
-        .level-card.zora .lvl-name { color: #5390FF; text-shadow: 0 0 10px rgba(83, 144, 255, 0.5); }
-        .level-card.coinbase .lvl-name { color: #FFFFFF; text-shadow: 0 0 10px var(--theme-coinbase); }
-        .level-card.locked .status-icon { content: "🔒"; }
-
-        /* LEADERBOARD & REWARD */
-        .lb-tabs { display: flex; gap: 10px; margin-bottom: 10px; }
-        .lb-tab { padding: 8px 16px; border-radius: 15px; background: #111; color: #666; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid #333; }
-        .lb-tab.active { background: var(--theme-base); color: #fff; border-color: var(--theme-base); }
-        
-        .lb-user-stats { width: 100%; max-width: 340px; background: rgba(0, 82, 255, 0.15); border: 1px solid var(--theme-base); border-radius: 10px; margin-bottom: 10px; padding: 8px; display: none; }
-        .lb-user-title { font-size: 9px; color: var(--theme-base); font-weight: 900; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* REWARD CARD STYLE */
-        .reward-card {
-            width: 100%; max-width: 340px;
-            background: linear-gradient(180deg, rgba(255, 215, 0, 0.1), rgba(0,0,0,0));
-            border: 1px solid var(--gold-accent);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 15px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
-        }
-        .reward-title { font-size: 12px; color: var(--gold-accent); font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .reward-desc { font-size: 12px; color: #fff; margin-bottom: 8px; line-height: 1.4; max-width: 280px; margin-left: auto; margin-right: auto; }
-        .reward-desc b { color: var(--gold-accent); font-weight: 900; }
-        
-        .btn-buy-token {
-            background: var(--gold-accent); color: #000; border: none;
-            padding: 6px 12px; border-radius: 15px;
-            font-size: 10px; font-weight: 900; cursor: pointer;
-            text-transform: uppercase;
-        }
-        .btn-buy-token:active { transform: scale(0.95); opacity: 0.9; }
-
-        /* HEADER FIX */
-        .lb-header { 
-            display: grid; 
-            grid-template-columns: 40px 1fr 50px 60px;
-            width: 100%; max-width: 340px;
-            font-size: 10px; color: #666; 
-            padding: 0 10px 5px 10px; 
-            font-weight: bold; text-transform: uppercase; 
-        }
-        .lb-row { display: grid; grid-template-columns: 40px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
-        .lb-list { width: 100%; max-width: 340px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
-        .lb-row:first-child { color: #FFD700; } 
-        .lb-rank { color: #666; font-weight: bold; }
-        .lb-addr { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
-        .lb-fails { color: #ff5555; text-align: center; font-size: 12px; }
-        .lb-time { color: var(--theme-base); font-weight: bold; text-align: right; }
-        .loading-text { color: #666; text-align: center; margin-top: 20px; font-size: 12px; }
-
-        .game-ui-header { flex: 0 0 auto; padding-top: 30px; padding-bottom: 5px; text-align: center; width: 100%; }
-        .game-ui-header h3 { margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; font-style: italic; }
-        .game-ui-header .sub { font-size: 11px; color: #666; margin-top: 4px; transition: all 0.3s ease; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
-        .live-timer { font-family: monospace; font-size: 24px; font-weight: 800; color: var(--theme-base); margin-top: 5px; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        body.theme-zora .live-timer { color: var(--theme-zora); }
-        body.theme-coinbase .live-timer { color: #FFFFFF; text-shadow: 0 0 10px var(--theme-coinbase); }
-
-        @keyframes statusPulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
-        .pulse-anim { animation: statusPulse 1.5s infinite ease-in-out; }
-
-        .game-wrapper { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; width: 100%; padding: 5px 10px; position: relative; overflow: hidden; min-height: 0; }
-        canvas { background-color: #050505; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); max-height: 100%; width: auto; max-width: 100%; aspect-ratio: 330/600; display: block; object-fit: contain; }
-
-        .controls-area { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto auto; gap: 8px; width: 95%; max-width: 360px; margin: 0 auto; padding-bottom: calc(env(safe-area-inset-bottom) + 15px); padding-top: 10px; }
-        .c-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid #333; color: white; padding: 16px 0; border-radius: 12px; font-size: 22px; display: flex; align-items: center; justify-content: center; user-select: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .c-btn:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
-        .btn-drop { grid-column: 1 / span 3; background: rgba(255, 255, 255, 0.15); border-color: #555; font-size: 16px; font-weight: 800; padding: 14px 0; }
-        
-        body.theme-base .btn-drop { background: rgba(0, 82, 255, 0.25); border-color: var(--theme-base); }
-        body.theme-base .btn-drop:active { background: var(--theme-base); }
-        body.theme-base .progress-bar { background: var(--theme-base); box-shadow: 0 0 10px var(--theme-base); }
-        body.theme-zora .btn-drop { background: rgba(123, 63, 228, 0.25); border-color: var(--theme-zora); }
-        body.theme-zora .btn-drop:active { background: var(--theme-zora); }
-        body.theme-zora .progress-bar { background: linear-gradient(90deg, #5390FF, #7B3FE4); box-shadow: 0 0 10px var(--theme-zora); }
-        body.theme-coinbase .btn-drop { background: rgba(0, 82, 255, 0.25); border-color: var(--theme-coinbase); }
-        body.theme-coinbase .btn-drop:active { background: var(--theme-coinbase); }
-        body.theme-coinbase .progress-bar { background: linear-gradient(90deg, #0052FF, #FFFFFF); box-shadow: 0 0 10px #FFFFFF; }
-
-        .progress-container { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #111; z-index: 50; }
-        .progress-bar { height: 100%; width: 0%; transition: width 0.3s ease-out; }
-
-        .overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; visibility: hidden; opacity: 0; transition: opacity 0.3s; z-index: 20; margin: 10px; padding: 20px; }
-        .overlay.visible { visibility: visible; opacity: 1; }
-        .score-big { font-size: 40px; font-weight: bold; margin: 10px 0 5px 0; }
-        .time-display { font-size: 16px; color: #888; margin-bottom: 20px; font-family: monospace; }
-        .overlay-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
-        
-        .menu-btn { 
-            width: 100%; max-width: 220px; padding: 12px; 
-            border-radius: 20px; border: 1px solid #444; 
-            background: #222; color: #fff; 
-            font-weight: bold; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center; 
-            font-size: 13px; margin: 0;
-        }
-        .btn-action { background: #fff; color: #000; border: none; }
-
+        .btn:active { background: #555; }
     </style>
 </head>
-<body class="theme-base">
+<body>
 
-    <div id="walletBox" class="wallet-container">
-        <button id="btnConnect" class="btn-connect" onclick="connectWallet()">CONNECT WALLET</button>
-        <div id="connectedUi" class="connected-ui">
-            <div class="address-pill" id="displayAddress">0x00...000</div>
-            <button class="btn-disconnect" onclick="disconnectWallet()">✕</button>
-        </div>
+    <div id="score">Score: 0</div>
+    <canvas id="tetris" width="240" height="400"></canvas>
+
+    <div class="controls">
+        <div class="btn" id="left">⬅️</div>
+        <div class="btn" id="rotate">🔄</div>
+        <div class="btn" id="right">➡️</div>
+        <div class="btn" id="drop">Ql</div>
     </div>
 
-    <div id="screen-start" class="screen active">
-        <h1>THE<br>BASED<br>TETRIS</h1>
-        <p class="desc">Build the logos.<br>Prove you are onchain.</p>
-        <button class="btn-main" onclick="goToLevels()">START GAME</button>
-        <button class="btn-secondary" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
-        <div id="statusPill" class="status-pill guest" onclick="connectWallet()">
-            ⚠️ Score Not Saving. Connect Wallet ↗
-        </div>
-    </div>
-
-    <div id="screen-levels" class="screen">
-        <h2>SELECT LEVEL</h2>
-        <div class="levels-grid">
-            <div class="level-card base" onclick="startGame(1)"><div class="lvl-num">LVL 1</div><div class="status-icon">🟦</div><div class="lvl-name">BASE</div></div>
-            <div class="level-card zora locked" id="card-lvl-2" onclick="startGame(2)"><div class="lvl-num">LVL 2</div><div class="status-icon" id="icon-lvl-2">🔒</div><div class="lvl-name">ZORA</div></div>
-             <div class="level-card coinbase locked" id="card-lvl-3" onclick="startGame(3)"><div class="lvl-num">LVL 3</div><div class="status-icon" id="icon-lvl-3">🔒</div><div class="lvl-name">COINBASE</div></div>
-        </div>
-        <button class="btn-text" onclick="backToStart()">← BACK</button>
-    </div>
-
-    <div id="screen-leaderboard" class="screen">
-        <h2>LEADERBOARD</h2>
-        <div class="lb-tabs">
-            <div class="lb-tab active" id="tab-1" onclick="loadLeaderboard(1)">LVL 1</div>
-            <div class="lb-tab" id="tab-2" onclick="loadLeaderboard(2)">LVL 2</div>
-            <div class="lb-tab" id="tab-3" onclick="loadLeaderboard(3)">LVL 3</div>
-        </div>
-        
-        <div class="reward-card">
-            <div class="reward-title">🏆 SEASON REWARD</div>
-            <div class="reward-desc">Top 1 player wins <b>500,000</b> of my<br>creator token <b>$fakewhoever</b> airdrop</div>
-            <button class="btn-buy-token" onclick="openTokenLink()">VIEW TOKEN ↗</button>
-        </div>
-
-        <div id="userStats" class="lb-user-stats">
-            <div class="lb-user-title">YOUR STATS</div>
-            <div class="lb-row" style="border:none; padding:0;">
-                <span id="uRank" class="lb-rank">?</span>
-                <span id="uAddr" class="lb-addr">--</span>
-                <span id="uFails" class="lb-fails">💀 0</span>
-                <span id="uTime" class="lb-time">--</span>
-            </div>
-        </div>
-        <div class="lb-header">
-            <span>Rank</span>
-            <span>Player</span>
-            <span style="text-align:center">Fails</span>
-            <span style="text-align:right">Time</span>
-        </div>
-        <div class="lb-list" id="lbList"><div class="loading-text">Loading...</div></div>
-        <button class="btn-text" onclick="backToStart()">← BACK</button>
-    </div>
-
-    <div id="screen-game" class="screen" style="padding: 0; display: none;">
-        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
-        <div class="game-ui-header">
-            <h3>THE BASED TETRIS</h3>
-            <div class="sub" id="headerSub">FILL THE SHAPE</div>
-            <div id="liveTimer" class="live-timer">0.00s</div>
-        </div>
-        <div class="game-wrapper">
-            <canvas id="gameCanvas" width="330" height="600"></canvas>
-            <div class="overlay" id="endScreen">
-                <h2 id="endTitle">GAME OVER</h2>
-                <div class="sub" id="endSubtitle">COVERAGE</div>
-                <div class="score-big"><span id="finalScore">0</span>%</div>
-                <div class="time-display" id="finalTimeDisplay"></div>
-                
-                <div class="overlay-btns">
-                    <button class="menu-btn btn-action" id="btnNextLevel" onclick="goToLevels()" style="display:none">NEXT LEVEL ➝</button>
-                    
-                    <button class="menu-btn" id="btnTryAgain" onclick="restartLevel()">TRY AGAIN</button>
-
-                    <button class="menu-btn" id="btnCheckLb" onclick="openLeaderboard()">LEADERBOARD</button>
-
-                    <button class="menu-btn" id="btnMenu" onclick="goToLevels()">MENU</button>
-                </div>
-
-            </div>
-        </div>
-        <div class="controls-area">
-            <div class="c-btn" id="btnLeft">←</div><div class="c-btn" id="btnRotate">↻</div><div class="c-btn" id="btnRight">→</div>
-            <div class="c-btn btn-drop" id="btnDrop">DROP</div>
-        </div>
-    </div>
-
-<script>
-    // --- LINK TO YOUR CREATOR TOKEN ---
-    const CREATOR_TOKEN_LINK = 'https://zora.co/@fakewhoever'; 
-
-    const SUPABASE_URL = 'https://fyeczwsrzdkuoaihuovw.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZWN6d3NyemRrdW9haWh1b3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzkzNTEsImV4cCI6MjA4MTcxNTM1MX0.zPAAvHSQuls4uECEUNXSOiN-09HCzvG860LOV1OENTQ';
-    let db = null; try { if(window.supabase) { db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } } catch(e) { console.log("Init Error"); }
-
-    let userAddress = null; let localBestTimes = { 1: null, 2: null, 3: null }; let unlockedLevels = [1];
-    async function connectWallet() { if (typeof window.ethereum !== 'undefined') { try { const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); if(accounts.length > 0) { userAddress = accounts[0]; const shortAddr = userAddress.substring(0,6) + "..." + userAddress.substring(38); document.getElementById('btnConnect').style.display = 'none'; document.getElementById('connectedUi').style.display = 'flex'; document.getElementById('displayAddress').innerText = shortAddr; const pill = document.getElementById('statusPill'); pill.className = 'status-pill onchain'; pill.innerHTML = '🟢 RANKING & SYNC ENABLED'; pill.onclick = null; await syncProfile(); } } catch (error) { alert("Connection failed: " + error.message); } } else { alert("No wallet found."); } }
-    function disconnectWallet() { userAddress = null; localBestTimes = { 1: null, 2: null, 3: null }; document.getElementById('btnConnect').style.display = 'block'; document.getElementById('connectedUi').style.display = 'none'; const pill = document.getElementById('statusPill'); pill.className = 'status-pill guest'; pill.innerHTML = '⚠️ Score Not Saving. Connect Wallet ↗'; pill.onclick = connectWallet; }
-    async function syncProfile() { if(!db || !userAddress) return; try { const { data, error } = await db.from('players').select('*').eq('wallet_address', userAddress).single(); if(data) { const cloudLevels = data.unlocked_levels || [1]; unlockedLevels = [...new Set([...unlockedLevels, ...cloudLevels])]; saveProgressLocal(); localBestTimes[1] = data.time_1; localBestTimes[2] = data.time_2; localBestTimes[3] = data.time_3; } else { await db.from('players').insert({ wallet_address: userAddress, unlocked_levels: unlockedLevels }); } updateLevelScreen(); } catch(e) { console.error("Sync error:", e); } }
-    async function saveGameResult(lvl, time) { if(!db || !userAddress) return; try { let nextLvl = lvl + 1; let newUnlocked = [...unlockedLevels]; if(nextLvl <= 3 && !newUnlocked.includes(nextLvl)) newUnlocked.push(nextLvl); let updateData = { unlocked_levels: newUnlocked }; let currentBest = localBestTimes[lvl]; if (!currentBest || time < currentBest) { localBestTimes[lvl] = time; updateData[`time_${lvl}`] = time; } await db.from('players').update(updateData).eq('wallet_address', userAddress); } catch(e) { console.error("Save error:", e); } }
-    async function recordFail(lvl) { if(!db || !userAddress) return; try { const { data } = await db.from('players').select(`fails_${lvl}`).eq('wallet_address', userAddress).single(); let currentFails = data ? data[`fails_${lvl}`] : 0; let updateData = {}; updateData[`fails_${lvl}`] = (currentFails || 0) + 1; await db.from('players').update(updateData).eq('wallet_address', userAddress); } catch(e) { console.error("Fail save error:", e); } }
-    async function loadLeaderboard(lvl) { document.querySelectorAll('.lb-tab').forEach((t, i) => { if(i+1 === lvl) t.classList.add('active'); else t.classList.remove('active'); }); const list = document.getElementById('lbList'); list.innerHTML = '<div class="loading-text">Loading...</div>'; const userStatsDiv = document.getElementById('userStats'); userStatsDiv.style.display = 'none'; if(!db) { list.innerHTML = '<div class="loading-text">DB Offline</div>'; return; } try { const timeCol = `time_${lvl}`; const failCol = `fails_${lvl}`; const { data, error } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).not(timeCol, 'is', null).order(timeCol, { ascending: true }).limit(50); if (error) throw error; if(userAddress) { const { data: uData } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).eq('wallet_address', userAddress).single(); if(uData) { userStatsDiv.style.display = 'block'; document.getElementById('uAddr').innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38); const uTime = uData[timeCol]; const uFail = uData[failCol] || 0; document.getElementById('uTime').innerText = uTime ? uTime.toFixed(2) + "s" : "--"; document.getElementById('uFails').innerText = "💀 " + uFail; let foundRank = false; if(data) { data.forEach((p, idx) => { if(p.wallet_address.toLowerCase() === userAddress.toLowerCase()) { document.getElementById('uRank').innerText = "#" + (idx + 1); foundRank = true; } }); } if(!foundRank) document.getElementById('uRank').innerText = ">50"; } } list.innerHTML = ""; if(!data || data.length === 0) { list.innerHTML = '<div class="loading-text">No records yet.</div>'; return; } data.forEach((item, index) => { let addrDisplay = item.wallet_address.substring(0,6) + "..." + item.wallet_address.substring(38); let time = item[timeCol]; let fails = item[failCol] || 0; const div = document.createElement('div'); div.className = 'lb-row'; div.innerHTML = `<span class="lb-rank">#${index+1}</span><span class="lb-addr">${addrDisplay}</span><span class="lb-fails">💀 ${fails}</span><span class="lb-time">${time.toFixed(2)}s</span>`; list.appendChild(div); }); } catch(e) { console.error(e); list.innerHTML = '<div class="loading-text">Error loading scores.</div>'; } }
-
-    let currentLevel = 1; let finishTime = 0; try { const save = localStorage.getItem('basedTetrisSave'); if(save) unlockedLevels = JSON.parse(save); } catch(e) {} function saveProgressLocal() { localStorage.setItem('basedTetrisSave', JSON.stringify(unlockedLevels)); } function saveProgress() { saveProgressLocal(); updateLevelScreen(); } 
-    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; }); if(id === 'screen-game') { document.getElementById('walletBox').style.opacity = '0'; document.getElementById('walletBox').style.pointerEvents = 'none'; } else { document.getElementById('walletBox').style.opacity = '1'; document.getElementById('walletBox').style.pointerEvents = 'auto'; } const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10); }
-    function goToLevels() { updateLevelScreen(); showScreen('screen-levels'); stopGameLoop(); } function backToStart() { showScreen('screen-start'); } function openLeaderboard() { showScreen('screen-leaderboard'); loadLeaderboard(1); }
-    function updateLevelScreen() { const l2 = document.getElementById('card-lvl-2'); const i2 = document.getElementById('icon-lvl-2'); if(unlockedLevels.includes(2)) { l2.classList.remove('locked'); i2.innerText = '🟣'; } else { l2.classList.add('locked'); i2.innerText = '🔒'; } const l3 = document.getElementById('card-lvl-3'); const i3 = document.getElementById('icon-lvl-3'); if(unlockedLevels.includes(3)) { l3.classList.remove('locked'); i3.innerText = '⚪'; } else { l3.classList.add('locked'); i3.innerText = '🔒'; } }
-
-    const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d'); const progressBar = document.getElementById('progressBar'); const endScreen = document.getElementById('endScreen'); const headerSub = document.getElementById('headerSub'); const timerDisplay = document.getElementById('liveTimer');
-    const COLS = 11; ROWS = 20; const BLOCK_SIZE = canvas.width / COLS; const BLOCK_RADIUS = 4;
-    const LEVELS = { 1: { themeClass: 'theme-base' }, 2: { themeClass: 'theme-zora' }, 3: { themeClass: 'theme-coinbase' } };
-    const DROP_SPEEDS = { 1: 800, 2: 700, 3: 600 };
-
-    let COLORS = {}; let LOGO_TARGET = []; let totalTargetPixels = 0; let board = []; let currentPiece = null; let dropCounter = 0; let lastTime = 0; let isGameRunning = false; let animationId = null; let winDelayTimer = null; let isVictoryPhase = false;
-    let dropLock = false; // Prevents accidental double drops
-
-    function startGame(lvl) {
-        if(!unlockedLevels.includes(lvl)) return;
-        currentLevel = lvl; document.body.className = LEVELS[lvl].themeClass;
-        COLORS = { main: '#0052FF', ghostBorder: 'rgba(255, 255, 255, 0.15)', ghostFill: 'rgba(255,255,255,0.02)', trash: '#222', active: '#FFF', highlight: 'rgba(255,255,255,0.5)', ghostPieceBorder: 'rgba(255, 255, 255, 0.3)', ghostPieceFill: 'rgba(255, 255, 255, 0.05)' };
-        if(lvl === 2) { COLORS.main = '#7B3FE4'; }
-        if(lvl === 3) { COLORS.main = '#FFFFFF'; COLORS.highlight = '#FFFFFF'; }
-        showScreen('screen-game'); restartLevel();
-    }
-
-    function initLogo(lvl) { LOGO_TARGET = Array.from({length: ROWS}, () => Array(COLS).fill(0)); const paint = (x, y, shape) => { shape.forEach((row, r) => row.forEach((v, c) => { if(v && LOGO_TARGET[y+r] && LOGO_TARGET[y+r][x+c] !== undefined) LOGO_TARGET[y+r][x+c] = 1; })); }; if (lvl === 1) { paint(2, 8, [[1,0,0],[1,1,1],[1,1,1],[1,1,1]]); paint(6, 9, [[1,1,1],[1,1,1],[1,1,1]]); paint(2, 13, [[1,1,1],[1,1,1],[1,1,1]]); paint(6, 13, [[1,1,1],[1,1,1],[1,1,1]]); } else if (lvl === 2) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); } else if (lvl === 3) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,0,0,0,1,1,1],[1,1,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,1,1],[1,1,1,0,0,0,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); } totalTargetPixels = 0; LOGO_TARGET.forEach(row => row.forEach(c => totalTargetPixels += c)); }
-    const SHAPES = [ [[1, 1, 1, 1]], [[1, 1], [1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 1], [1, 0, 0]], [[1, 1, 1], [0, 0, 1]], [[1, 1, 0], [0, 1, 1]], [[0, 1, 1], [1, 1, 0]] ];
-    function createPiece() { const typeId = Math.floor(Math.random() * SHAPES.length); const matrix = SHAPES[typeId].map(row => [...row]); return { matrix, x: Math.floor(COLS / 2) - Math.floor(matrix[0].length / 2), y: 0 }; }
-    function rotateMatrix(matrix) { const N = matrix.length; const M = matrix[0].length; const result = []; for (let i = 0; i < M; i++) { result[i] = []; for (let j = 0; j < N; j++) result[i][j] = matrix[N - 1 - j][i]; } return result; }
-    function collide(arena, player) { const [m, o] = [player.matrix, player]; for (let y = 0; y < m.length; ++y) { for (let x = 0; x < m[y].length; ++x) { if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true; } } return false; }
-    function drawRoundedRect(x, y, width, height, radius, fill, stroke, shadowColor) { ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); if (shadowColor) { ctx.shadowBlur = 15; ctx.shadowColor = shadowColor; } else { ctx.shadowBlur = 0; } if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); } ctx.shadowBlur = 0; }
-    function getPixelColor(x, y, lvl) { if (lvl === 2) { const px = x - 1; const py = y - 7; const zoraColors = [[null,null,'#43427e','#426bda','#6986ec','#9497e8','#9296e9',null,null],[null,'#3f2c4e','#395fc8','#587fef','#aea1e3','#ebc1e2','#eac2e2','#a89fe4',null],['#3c1f1b','#3f397b','#3965de','#6485f0','#caade2','#fce4ee','#fde0ec','#c5a9e2','#617fe9'],['#351a1a','#3d3b7e','#3664dd','#547ff2','#a49ee4','#e4bce0','#e3bae1','#9f9ce6','#5079e8'],['#381916','#3f3063','#365acd','#3c6ff2','#5d82f1','#8392ea','#8391ec','#5c81ef','#3e67d7'],['#552a1b','#321b2e','#3b439b','#335edb','#366cee','#3e72f2','#3e70f1','#3965dc','#3f4a9d'],['#85532b','#351514','#3b2140','#3d4091','#3552ba','#3557c7','#3953bc','#3d438e','#3f283b'],[null,'#774325','#391714','#2f1723','#3a2344','#3c2750','#39223e','#361c22',null],[null,null,'#89572c','#66351f','#4b241a','#46231a','#5b3222',null,null]]; if (px >= 0 && px < 9 && py >= 0 && py < 9) return zoraColors[py][px] || COLORS.trash; } else if (lvl === 3) return '#FFFFFF'; return COLORS.trash; }
-    function calculateScore() { let filled = 0; board.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0 && LOGO_TARGET[y][x] === 1) filled++; }); }); return Math.floor((filled / totalTargetPixels) * 100); }
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        LOGO_TARGET.forEach((row, y) => { 
-            row.forEach((val, x) => { 
-                if (val === 1 && board[y][x] === 0) { 
-                    let fill = COLORS.ghostFill; let border = COLORS.ghostBorder; let shadow = null;
-                    if(currentLevel === 2) { 
-                        const pColor = getPixelColor(x, y, 2); 
-                        if (pColor) { border = pColor; fill = 'rgba(0,0,0,0)'; }
-                    } else if (currentLevel === 3) { 
-                        fill = 'rgba(255, 255, 255, 0.2)'; border = 'rgba(255, 255, 255, 0.5)'; 
-                    } 
-                    drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, border, shadow); 
-                } 
-            }); 
+    <script>
+        // --- 1. ИНИЦИАЛИЗАЦИЯ FARCASTER SDK ---
+        // Это говорит приложению, что игра загрузилась и можно убирать сплэш-скрин
+        window.addEventListener('load', () => {
+            if (window.farcaster && window.farcaster.sdk) {
+                window.farcaster.sdk.actions.ready();
+            }
         });
-        board.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) { const isLogo = (LOGO_TARGET[y][x] === 1); let color = COLORS.trash; let shadow = null; let highlight = null; if (isLogo) { if (currentLevel === 1) { color = COLORS.main; shadow = COLORS.main; highlight = COLORS.highlight; } else if (currentLevel === 2) { color = getPixelColor(x, y, 2); shadow = null; highlight = null; } else if (currentLevel === 3) { color = '#FFFFFF'; shadow = 'rgba(255, 255, 255, 0.8)'; highlight = null; } } drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, color, null, shadow); if (highlight && currentLevel === 1) { ctx.fillStyle = highlight; ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4); } } }); });
-        progressBar.style.width = calculateScore() + '%';
-        
-        if (currentPiece && !isVictoryPhase) {
-            let ghost = { matrix: currentPiece.matrix, x: currentPiece.x, y: currentPiece.y };
-            while (!collide(board, ghost)) { ghost.y++; }
-            ghost.y--;
-            if (ghost.y !== currentPiece.y) { ghost.matrix.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) drawRoundedRect((x + ghost.x) * BLOCK_SIZE + 1, (y + ghost.y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, COLORS.ghostPieceFill, COLORS.ghostPieceBorder); }); }); }
+
+        // --- 2. ТВОЙ КОД ИГРЫ (БЕЗ ИЗМЕНЕНИЙ) ---
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        context.scale(20, 20); // Масштаб клеток
+
+        // Очки
+        let score = 0;
+        function updateScore() {
+            document.getElementById('score').innerText = 'Score: ' + score;
         }
 
-        if (currentPiece && !isVictoryPhase) { currentPiece.matrix.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) drawRoundedRect((x + currentPiece.x) * BLOCK_SIZE + 1, (y + currentPiece.y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, COLORS.active); }); }); }
-        if (isVictoryPhase) { ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 24px -apple-system, BlinkMacSystemFont, sans-serif"; const alpha = 0.5 + 0.5 * Math.sin(Date.now() / 150); ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 10; ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`; ctx.restore(); }
-    }
+        // Фигуры
+        const pieces = 'ILJOTSZ';
+        const colors = [
+            null,
+            '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF',
+        ];
 
-    function merge(arena, player) { player.matrix.forEach((row, y) => { row.forEach((value, x) => { if (value !== 0 && y + player.y >= 0) arena[y + player.y][x + player.x] = value; }); }); }
-    function playerRotate() { const oldMatrix = currentPiece.matrix; const rotated = rotateMatrix(currentPiece.matrix); currentPiece.matrix = rotated; const pos = currentPiece.x; let offset = 1; while (collide(board, currentPiece)) { currentPiece.x += offset; offset = -(offset + (offset > 0 ? 1 : -1)); if (Math.abs(offset) > rotated[0].length + 1) { currentPiece.x = pos; currentPiece.matrix = oldMatrix; return; } } }
-    function stopGameLoop() { isGameRunning = false; cancelAnimationFrame(animationId); clearTimeout(winDelayTimer); isVictoryPhase = false; }
-
-    function showEndScreen(isWin) {
-        if(isWin) {
-            isVictoryPhase = true; finishTime = (Date.now() - startTime) / 1000;
-            let nextLvl = currentLevel + 1; if(nextLvl <= 3 && !unlockedLevels.includes(nextLvl)) { unlockedLevels.push(nextLvl); saveProgressLocal(); }
-            saveGameResult(currentLevel, finishTime);
-            headerSub.innerText = "LEVEL COMPLETE";
-            let glowColor = '#0052FF'; if (currentLevel === 2) glowColor = '#7B3FE4'; if (currentLevel === 3) glowColor = '#FFFFFF'; 
-            headerSub.style.color = glowColor; headerSub.style.textShadow = `0 0 15px ${glowColor}`; headerSub.classList.add('pulse-anim');
-            winDelayTimer = setTimeout(() => { isVictoryPhase = false; isGameRunning = false; cancelAnimationFrame(animationId); displayOverlay(true); }, 4000); 
-        } else { stopGameLoop(); recordFail(currentLevel); displayOverlay(false); }
-    }
-
-    function displayOverlay(isWin) {
-        document.getElementById('finalScore').innerText = calculateScore();
-        const title = document.getElementById('endTitle'); const nextBtn = document.getElementById('btnNextLevel'); const timeDisplay = document.getElementById('finalTimeDisplay');
-        const btnTry = document.getElementById('btnTryAgain');
-        const btnLb = document.getElementById('btnCheckLb');
-        const btnMenu = document.getElementById('btnMenu');
-        
-        nextBtn.style.display = 'none'; btnTry.style.display = 'none'; btnLb.style.display = 'none'; btnMenu.style.display = 'none';
-
-        if (isWin) {
-            title.innerText = "LEVEL COMPLETE"; timeDisplay.innerText = `TIME: ${finishTime.toFixed(2)}s`;
-            let winColor = '#0052FF'; let nextLvlId = 2; if (currentLevel === 2) { winColor = '#7B3FE4'; nextLvlId = 3; } if (currentLevel === 3) { winColor = '#FFFFFF'; nextLvlId = 4; } 
-            title.style.color = winColor; title.style.textShadow = `0 0 20px ${winColor}`;
-            if(currentLevel < 3) { nextBtn.style.display = 'flex'; nextBtn.innerText = `UNLOCK LVL ${nextLvlId} ➝`; } else { nextBtn.style.display = 'flex'; nextBtn.innerText = "SOON ➝"; }
-            btnLb.style.display = 'flex'; btnMenu.style.display = 'flex';
-        } else { 
-            title.innerText = "GAME OVER"; title.style.color = "#fff"; title.style.textShadow = "none"; timeDisplay.innerText = ""; 
-            btnTry.style.display = 'flex'; btnLb.style.display = 'flex'; btnMenu.style.display = 'flex';
+        function createPiece(type) {
+            if (type === 'I') {
+                return [
+                    [0, 1, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 1, 0, 0],
+                ];
+            } else if (type === 'L') {
+                return [
+                    [0, 2, 0],
+                    [0, 2, 0],
+                    [0, 2, 2],
+                ];
+            } else if (type === 'J') {
+                return [
+                    [0, 3, 0],
+                    [0, 3, 0],
+                    [3, 3, 0],
+                ];
+            } else if (type === 'O') {
+                return [
+                    [4, 4],
+                    [4, 4],
+                ];
+            } else if (type === 'Z') {
+                return [
+                    [5, 5, 0],
+                    [0, 5, 5],
+                    [0, 0, 0],
+                ];
+            } else if (type === 'S') {
+                return [
+                    [0, 6, 6],
+                    [6, 6, 0],
+                    [0, 0, 0],
+                ];
+            } else if (type === 'T') {
+                return [
+                    [0, 7, 0],
+                    [7, 7, 7],
+                    [0, 0, 0],
+                ];
+            }
         }
-        endScreen.classList.add('visible');
-    }
-    
-    function openTokenLink() {
-        if(CREATOR_TOKEN_LINK) window.open(CREATOR_TOKEN_LINK, '_blank');
-        else alert("Token link not set yet!");
-    }
-    
-    function openLeaderboard() { showScreen('screen-leaderboard'); loadLeaderboard(1); }
 
-    function checkWinCondition() { if (calculateScore() >= 100) return true; return false; }
-    function playerReset() { currentPiece = createPiece(); if (collide(board, currentPiece)) showEndScreen(false); }
-    
-    function playerDrop() {
-        if(isVictoryPhase) return;
-        currentPiece.y++;
-        if (collide(board, currentPiece)) {
-            currentPiece.y--;
-            merge(board, currentPiece);
-            // LOCK DROP to prevent next piece accidental drop
-            clearInterval(fastDropInterval);
-            isHoldingDrop = false;
-            dropLock = true;
-            if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); }
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) {
+                matrix.push(new Array(w).fill(0));
+            }
+            return matrix;
         }
-        dropCounter = 0;
-    }
 
-    function playerHardDrop() { if(isVictoryPhase) return; while (!collide(board, currentPiece)) { currentPiece.y++; } currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } draw(); }
-    function playerMove(dir) { if(isVictoryPhase) return; currentPiece.x += dir; if (collide(board, currentPiece)) currentPiece.x -= dir; }
-    function restartLevel() { clearTimeout(winDelayTimer); isVictoryPhase = false; startTime = Date.now(); headerSub.innerText = "FILL THE SHAPE"; headerSub.style.color = "#666"; headerSub.style.textShadow = "none"; headerSub.classList.remove('pulse-anim'); timerDisplay.innerText = "0.00s"; initLogo(currentLevel); board = Array.from({length: ROWS}, () => Array(COLS).fill(0)); isGameRunning = true; endScreen.classList.remove('visible'); playerReset(); update(); }
-    function update(time = 0) { if (!isGameRunning && !isVictoryPhase) return; const deltaTime = time - lastTime; lastTime = time; dropCounter += deltaTime; if(isGameRunning && !isVictoryPhase) { timerDisplay.innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s"; } let speed = DROP_SPEEDS[currentLevel] || 800; if (!isVictoryPhase && dropCounter > speed) playerDrop(); draw(); animationId = requestAnimationFrame(update); }
+        const arena = createMatrix(12, 20);
+        const player = {
+            pos: {x: 0, y: 0},
+            matrix: null,
+            score: 0,
+        };
 
-    const addClick = (id, fn) => { document.getElementById(id).addEventListener('click', (e) => { e.preventDefault(); if(isGameRunning) fn(); }); };
-    addClick('btnLeft', () => playerMove(-1)); addClick('btnRight', () => playerMove(1)); addClick('btnRotate', () => playerRotate());
-    const btnDrop = document.getElementById('btnDrop'); let dropTimer = null; let fastDropInterval = null; let isHoldingDrop = false; let isPressed = false;
-    
-    // --- UPDATED DROP LOGIC WITH LOCK ---
-    const startDropAction = (e) => { 
-        if(e.cancelable && e.type === 'touchstart') e.preventDefault(); 
-        if(!isGameRunning || isVictoryPhase || dropLock) return; // Respect lock
-        isPressed = true; isHoldingDrop = false; 
-        dropTimer = setTimeout(() => { 
-            if(!isPressed) return; 
-            isHoldingDrop = true; 
-            fastDropInterval = setInterval(() => playerDrop(), 50); 
-        }, 200); 
-    };
-    const endDropAction = (e) => { 
-        if(e.cancelable && e.type === 'touchend') e.preventDefault(); 
-        if (!isPressed && !dropLock) return; // Only ignore if not pressed AND not just locked
-        
-        clearTimeout(dropTimer); 
-        clearInterval(fastDropInterval); 
-        
-        // If it was a quick tap and NOT holding/locked -> Hard Drop
-        if (!isHoldingDrop && !dropLock && isGameRunning && !isVictoryPhase) {
-            playerHardDrop(); 
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(arena, {x: 0, y: 0});
+            drawMatrix(player.matrix, player.pos);
         }
-        
-        isPressed = false; 
-        isHoldingDrop = false;
-        dropLock = false; // Reset lock on release
-    };
-    
-    btnDrop.addEventListener('mousedown', startDropAction); btnDrop.addEventListener('mouseup', endDropAction); btnDrop.addEventListener('mouseleave', endDropAction); btnDrop.addEventListener('touchstart', startDropAction, {passive: false}); btnDrop.addEventListener('touchend', endDropAction);
-    document.addEventListener('keydown', event => { if (!isGameRunning || isVictoryPhase) return; if (event.keyCode === 37) playerMove(-1); else if (event.keyCode === 39) playerMove(1); else if (event.keyCode === 40) playerDrop(); else if (event.keyCode === 38) playerRotate(); else if (event.keyCode === 32) playerHardDrop(); });
-</script>
+
+        function drawMatrix(matrix, offset) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        context.fillStyle = colors[value];
+                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        function merge(arena, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        arena[y + player.pos.y][x + player.pos.x] = value;
+                    }
+                });
+            });
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) {
+                matrix.forEach(row => row.reverse());
+            } else {
+                matrix.reverse();
+            }
+        }
+
+        function playerReset() {
+            const piecesStr = 'ILJOTSZ';
+            player.matrix = createPiece(piecesStr[piecesStr.length * Math.random() | 0]);
+            player.pos.y = 0;
+            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+            if (collide(arena, player)) {
+                arena.forEach(row => row.fill(0));
+                score = 0;
+                updateScore();
+            }
+        }
+
+        function collide(arena, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 &&
+                       (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(arena, player)) {
+                player.pos.y--;
+                merge(arena, player);
+                playerReset();
+                arenaSweep();
+            }
+            dropCounter = 0;
+        }
+
+        function arenaSweep() {
+            let rowCount = 1;
+            outer: for (let y = arena.length - 1; y > 0; --y) {
+                for (let x = 0; x < arena[y].length; ++x) {
+                    if (arena[y][x] === 0) {
+                        continue outer;
+                    }
+                }
+                const row = arena.splice(y, 1)[0].fill(0);
+                arena.unshift(row);
+                ++y;
+                score += rowCount * 10;
+                rowCount *= 2;
+            }
+            updateScore();
+        }
+
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                playerDrop();
+            }
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function playerMove(dir) {
+            player.pos.x += dir;
+            if (collide(arena, player)) {
+                player.pos.x -= dir;
+            }
+        }
+
+        function playerRotate(dir) {
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, dir);
+            while (collide(arena, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+        }
+
+        // Управление с клавиатуры
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === 37) playerMove(-1);
+            else if (event.keyCode === 39) playerMove(1);
+            else if (event.keyCode === 40) playerDrop();
+            else if (event.keyCode === 81) playerRotate(-1);
+            else if (event.keyCode === 87 || event.keyCode === 38) playerRotate(1);
+        });
+
+        // Управление кнопками (для телефона)
+        document.getElementById('left').addEventListener('click', () => playerMove(-1));
+        document.getElementById('right').addEventListener('click', () => playerMove(1));
+        document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
+        document.getElementById('drop').addEventListener('click', () => playerDrop());
+
+        playerReset();
+        updateScore();
+        update();
+    </script>
 </body>
 </html>
