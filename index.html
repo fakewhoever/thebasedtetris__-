@@ -41,14 +41,13 @@
             touch-action: none; user-select: none;
         }
 
-        /* --- WALLET UI (UNIFIED SIZES) --- */
+        /* WALLET UI */
         .wallet-container { 
             position: absolute; top: 15px; right: 15px; z-index: 200; 
             display: flex; align-items: center; gap: 8px;
             transition: opacity 0.3s ease;
         }
         
-        /* 1. Connect Button */
         .btn-connect {
             background: rgba(0, 82, 255, 0.3); border: 1px solid var(--theme-base);
             color: #fff; padding: 8px 16px; border-radius: 20px;
@@ -56,41 +55,31 @@
             transition: 0.2s; text-transform: uppercase;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            height: 32px; /* Fixed height for consistency */
-            display: flex; align-items: center;
+            height: 32px; display: flex; align-items: center;
         }
         .btn-connect:active { transform: scale(0.95); background: var(--theme-base); }
 
-        /* 2. Connected State Container */
         .connected-ui { display: none; align-items: center; gap: 6px; }
         
-        /* 3. Address Pill (Matches Connect Button) */
         .address-pill {
             background: var(--theme-base); color: #fff; 
-            padding: 0 16px; border-radius: 20px; /* Horizontal padding only, height set by flex/height */
-            height: 32px; /* Fixed height matches button */
-            font-size: 11px; font-weight: 800; 
+            padding: 0 16px; border-radius: 20px; height: 32px;
+            font-size: 11px; font-weight: 700; 
             border: 1px solid rgba(255,255,255,0.2);
             cursor: default;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex; align-items: center;
         }
         
-        /* 4. Disconnect (X) Button */
         .btn-disconnect {
-            background: rgba(255, 50, 50, 0.25); 
-            border: 1px solid rgba(255, 80, 80, 0.5);
-            color: #ffcccc; 
-            width: 32px; height: 32px; /* Matches height of other buttons */
-            border-radius: 50%;
+            background: rgba(255, 50, 50, 0.25); border: 1px solid rgba(255, 80, 80, 0.5);
+            color: #ffcccc; width: 32px; height: 32px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 14px; font-weight: bold; cursor: pointer;
-            transition: 0.2s;
-            backdrop-filter: blur(5px);
+            transition: 0.2s; backdrop-filter: blur(5px);
         }
         .btn-disconnect:active { background: rgba(255, 50, 50, 0.6); transform: scale(0.90); color: #fff; }
 
-        /* STATUS PILL */
         .status-pill {
             padding: 10px 20px; border-radius: 20px; font-size: 10px; font-weight: 800;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
@@ -111,20 +100,10 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 200, 0, 0); }
         }
 
-        /* SCREENS */
-        .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 100; background: #000; padding: 20px;
-        }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; background: #000; padding: 20px; }
         .screen.active { display: flex; }
 
-        h1 { 
-            font-size: 32px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; font-style: italic; 
-            text-shadow: 0 0 20px var(--theme-base); 
-            margin-bottom: 10px; text-align: center; line-height: 1.1; 
-            margin-top: 50px; 
-        }
+        h1 { font-size: 32px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; font-style: italic; text-shadow: 0 0 20px var(--theme-base); margin-bottom: 10px; text-align: center; line-height: 1.1; margin-top: 50px; }
         h2 { font-size: 24px; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; margin-top: 30px; }
         p.desc { color: #888; text-align: center; max-width: 300px; line-height: 1.4; margin-bottom: 30px; font-size: 14px; }
 
@@ -147,7 +126,6 @@
         .level-card.coinbase .lvl-name { color: #FFFFFF; text-shadow: 0 0 10px var(--theme-coinbase); }
         .level-card.locked .status-icon { content: "🔒"; }
 
-        /* LEADERBOARD */
         .lb-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .lb-tab { padding: 8px 16px; border-radius: 15px; background: #111; color: #666; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid #333; }
         .lb-tab.active { background: var(--theme-base); color: #fff; border-color: var(--theme-base); }
@@ -163,17 +141,9 @@
         .lb-time { color: var(--theme-base); font-weight: bold; text-align: right; }
         .loading-text { color: #666; text-align: center; margin-top: 20px; font-size: 12px; }
 
-        /* GAME UI */
-        .game-ui-header {
-            flex: 0 0 auto;
-            padding-top: 30px; 
-            padding-bottom: 5px;
-            text-align: center;
-            width: 100%;
-        }
+        .game-ui-header { flex: 0 0 auto; padding-top: 30px; padding-bottom: 5px; text-align: center; width: 100%; }
         .game-ui-header h3 { margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; font-style: italic; }
         .game-ui-header .sub { font-size: 11px; color: #666; margin-top: 4px; transition: all 0.3s ease; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
-        
         .live-timer { font-family: monospace; font-size: 24px; font-weight: 800; color: var(--theme-base); margin-top: 5px; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
         body.theme-zora .live-timer { color: var(--theme-zora); }
         body.theme-coinbase .live-timer { color: #FFFFFF; text-shadow: 0 0 10px var(--theme-coinbase); }
@@ -304,10 +274,9 @@
         }
     } catch(e) { console.log("Init Error"); }
 
-    // --- WALLET LOGIC ---
+    // --- WALLET ---
     let userAddress = null;
     let localBestTimes = { 1: null, 2: null, 3: null }; 
-    let unlockedLevels = [1];
     
     async function connectWallet() {
         if (typeof window.ethereum !== 'undefined') {
@@ -329,7 +298,7 @@
                     await syncProfile();
                 }
             } catch (error) { alert("Connection failed: " + error.message); }
-        } else { alert("No wallet found."); }
+        } else { alert("No wallet found. Open in Coinbase Wallet browser."); }
     }
 
     function disconnectWallet() {
@@ -363,6 +332,7 @@
         } catch(e) { console.error("Sync error:", e); }
     }
 
+    // --- SAVING ---
     async function saveGameResult(lvl, time) {
         if(!db || !userAddress) return;
         try {
@@ -390,6 +360,7 @@
         } catch(e) { console.error("Fail save error:", e); }
     }
 
+    // --- LEADERBOARD ---
     async function loadLeaderboard(lvl) {
         document.querySelectorAll('.lb-tab').forEach((t, i) => {
             if(i+1 === lvl) t.classList.add('active'); else t.classList.remove('active');
@@ -445,10 +416,13 @@
     }
 
     // --- GAME ENGINE ---
+    let unlockedLevels = [1];
     let currentLevel = 1; let startTime = 0; let finishTime = 0;
+
     try { const save = localStorage.getItem('basedTetrisSave'); if(save) unlockedLevels = JSON.parse(save); } catch(e) {}
     function saveProgressLocal() { localStorage.setItem('basedTetrisSave', JSON.stringify(unlockedLevels)); }
-    
+    function saveProgress() { saveProgressLocal(); updateLevelScreen(); } 
+
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
         if(id === 'screen-game') {
@@ -479,9 +453,16 @@
     const headerSub = document.getElementById('headerSub');
     const timerDisplay = document.getElementById('liveTimer');
     
-    const COLS = 11; ROWS = 20; const BLOCK_SIZE = canvas.width / COLS; const BLOCK_RADIUS = 4;
-    const LEVELS = { 1: { themeClass: 'theme-base' }, 2: { themeClass: 'theme-zora' }, 3: { themeClass: 'theme-coinbase' } };
-    
+    const COLS = 11; ROWS = 20; 
+    const BLOCK_SIZE = canvas.width / COLS;
+    const BLOCK_RADIUS = 4;
+
+    const LEVELS = {
+        1: { themeClass: 'theme-base' },
+        2: { themeClass: 'theme-zora' },
+        3: { themeClass: 'theme-coinbase' }
+    };
+
     let COLORS = {}; let LOGO_TARGET = []; let totalTargetPixels = 0;
     let board = []; let currentPiece = null;
     let dropCounter = 0; let lastTime = 0; let isGameRunning = false; let animationId = null;
@@ -500,13 +481,22 @@
     function initLogo(lvl) {
         LOGO_TARGET = Array.from({length: ROWS}, () => Array(COLS).fill(0));
         const paint = (x, y, shape) => { shape.forEach((row, r) => row.forEach((v, c) => { if(v && LOGO_TARGET[y+r] && LOGO_TARGET[y+r][x+c] !== undefined) LOGO_TARGET[y+r][x+c] = 1; })); };
-        if (lvl === 1) { paint(2, 8, [[1,0,0],[1,1,1],[1,1,1],[1,1,1]]); paint(6, 9, [[1,1,1],[1,1,1],[1,1,1]]); paint(2, 13, [[1,1,1],[1,1,1],[1,1,1]]); paint(6, 13, [[1,1,1],[1,1,1],[1,1,1]]); } 
-        else if (lvl === 2) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); } 
-        else if (lvl === 3) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,0,0,0,1,1,1],[1,1,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,1,1],[1,1,1,0,0,0,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); }
+
+        if (lvl === 1) {
+            const shapeB = [[1,0,0],[1,1,1],[1,1,1],[1,1,1]]; const shapeSquare = [[1,1,1],[1,1,1],[1,1,1]];
+            paint(2, 8, shapeB); paint(6, 9, shapeSquare); paint(2, 13, shapeSquare); paint(6, 13, shapeSquare);
+        } else if (lvl === 2) {
+            const sphereMap = [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]];
+            paint(1, 7, sphereMap); 
+        } else if (lvl === 3) {
+            const cMap = [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,0,0,0,1,1,1],[1,1,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,1,1],[1,1,1,0,0,0,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]];
+            paint(1, 7, cMap);
+        }
         totalTargetPixels = 0; LOGO_TARGET.forEach(row => row.forEach(c => totalTargetPixels += c));
     }
 
     const SHAPES = [ [[1, 1, 1, 1]], [[1, 1], [1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 1], [1, 0, 0]], [[1, 1, 1], [0, 0, 1]], [[1, 1, 0], [0, 1, 1]], [[0, 1, 1], [1, 1, 0]] ];
+
     function createPiece() { const typeId = Math.floor(Math.random() * SHAPES.length); const matrix = SHAPES[typeId].map(row => [...row]); return { matrix, x: Math.floor(COLS / 2) - Math.floor(matrix[0].length / 2), y: 0 }; }
     function rotateMatrix(matrix) { const N = matrix.length; const M = matrix[0].length; const result = []; for (let i = 0; i < M; i++) { result[i] = []; for (let j = 0; j < N; j++) result[i][j] = matrix[N - 1 - j][i]; } return result; }
     function collide(arena, player) { const [m, o] = [player.matrix, player]; for (let y = 0; y < m.length; ++y) { for (let x = 0; x < m[y].length; ++x) { if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true; } } return false; }
@@ -543,6 +533,60 @@
     function playerRotate() { const oldMatrix = currentPiece.matrix; const rotated = rotateMatrix(currentPiece.matrix); currentPiece.matrix = rotated; const pos = currentPiece.x; let offset = 1; while (collide(board, currentPiece)) { currentPiece.x += offset; offset = -(offset + (offset > 0 ? 1 : -1)); if (Math.abs(offset) > rotated[0].length + 1) { currentPiece.x = pos; currentPiece.matrix = oldMatrix; return; } } }
     function stopGameLoop() { isGameRunning = false; cancelAnimationFrame(animationId); clearTimeout(winDelayTimer); isVictoryPhase = false; }
 
+    function showEndScreen(isWin) {
+        if(isWin) {
+            isVictoryPhase = true;
+            finishTime = (Date.now() - startTime) / 1000;
+            let nextLvl = currentLevel + 1;
+            if(nextLvl <= 3 && !unlockedLevels.includes(nextLvl)) { unlockedLevels.push(nextLvl); saveProgressLocal(); }
+            saveGameResult(currentLevel, finishTime);
+            headerSub.innerText = "LEVEL COMPLETE";
+            let glowColor = '#0052FF'; if (currentLevel === 2) glowColor = '#7B3FE4'; if (currentLevel === 3) glowColor = '#FFFFFF'; 
+            headerSub.style.color = glowColor; headerSub.style.textShadow = `0 0 15px ${glowColor}`; headerSub.classList.add('pulse-anim');
+            winDelayTimer = setTimeout(() => { isVictoryPhase = false; isGameRunning = false; cancelAnimationFrame(animationId); displayOverlay(true); }, 4000); 
+        } else { 
+            stopGameLoop(); 
+            recordFail(currentLevel);
+            displayOverlay(false); 
+        }
+    }
+
+    function displayOverlay(isWin) {
+        document.getElementById('finalScore').innerText = calculateScore();
+        const title = document.getElementById('endTitle'); const nextBtn = document.getElementById('btnNextLevel'); const timeDisplay = document.getElementById('finalTimeDisplay');
+        if (isWin) {
+            title.innerText = "LEVEL COMPLETE"; timeDisplay.innerText = `TIME: ${finishTime.toFixed(2)}s`;
+            let winColor = '#0052FF'; let nextLvlId = 2;
+            if (currentLevel === 2) { winColor = '#7B3FE4'; nextLvlId = 3; } if (currentLevel === 3) { winColor = '#FFFFFF'; nextLvlId = 4; } 
+            title.style.color = winColor; title.style.textShadow = `0 0 20px ${winColor}`;
+            if(currentLevel < 3) { nextBtn.style.display = 'flex'; nextBtn.innerText = `UNLOCK LVL ${nextLvlId} ➝`; } else { nextBtn.style.display = 'flex'; nextBtn.innerText = "SOON ➝"; }
+        } else { title.innerText = "GAME OVER"; title.style.color = "#fff"; title.style.textShadow = "none"; nextBtn.style.display = 'none'; timeDisplay.innerText = ""; }
+        endScreen.classList.add('visible');
+    }
+
+    function checkWinCondition() { if (calculateScore() >= 100) return true; return false; }
+    function playerReset() { currentPiece = createPiece(); if (collide(board, currentPiece)) showEndScreen(false); }
+    
+    // --- THIS WAS MISSING AND CAUSED THE BUG ---
+    function playerDrop() {
+        if(isVictoryPhase) return;
+        currentPiece.y++;
+        if (collide(board, currentPiece)) {
+            currentPiece.y--;
+            merge(board, currentPiece);
+            if (checkWinCondition()) {
+                showEndScreen(true);
+            } else {
+                if(isGameRunning) playerReset();
+            }
+        }
+        dropCounter = 0;
+    }
+    // -------------------------------------------
+
+    function playerHardDrop() { if(isVictoryPhase) return; while (!collide(board, currentPiece)) { currentPiece.y++; } currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } draw(); }
+    function playerMove(dir) { if(isVictoryPhase) return; currentPiece.x += dir; if (collide(board, currentPiece)) currentPiece.x -= dir; }
+    
     function restartLevel() { 
         clearTimeout(winDelayTimer); isVictoryPhase = false; startTime = Date.now(); 
         headerSub.innerText = "FILL THE SHAPE"; headerSub.style.color = "#666"; headerSub.style.textShadow = "none"; headerSub.classList.remove('pulse-anim'); 
@@ -558,11 +602,6 @@
         draw(); 
         animationId = requestAnimationFrame(update); 
     }
-
-    function playerReset() { currentPiece = createPiece(); if (collide(board, currentPiece)) showEndScreen(false); }
-    function playerDrop() { if(isVictoryPhase) return; currentPiece.y++; if (collide(board, currentPiece)) { currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } } dropCounter = 0; }
-    function playerHardDrop() { if(isVictoryPhase) return; while (!collide(board, currentPiece)) { currentPiece.y++; } currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } draw(); }
-    function playerMove(dir) { if(isVictoryPhase) return; currentPiece.x += dir; if (collide(board, currentPiece)) currentPiece.x -= dir; }
 
     const addClick = (id, fn) => { document.getElementById(id).addEventListener('click', (e) => { e.preventDefault(); if(isGameRunning) fn(); }); };
     addClick('btnLeft', () => playerMove(-1)); addClick('btnRight', () => playerMove(1)); addClick('btnRotate', () => playerRotate());
