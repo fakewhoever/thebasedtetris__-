@@ -306,11 +306,35 @@
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        LOGO_TARGET.forEach((row, y) => { row.forEach((val, x) => { if (val === 1 && board[y][x] === 0) { let fill = COLORS.ghostFill; let border = COLORS.ghostBorder; if(currentLevel === 2) { const pColor = getPixelColor(x, y, 2); if(pColor && pColor !== COLORS.trash) { border = pColor.replace('rgb', 'rgba').replace(')', ', 0.3)'); fill = 'rgba(0,0,0,0)'; } } else if (currentLevel === 3) { fill = 'rgba(255, 255, 255, 0.2)'; border = 'rgba(255, 255, 255, 0.5)'; } drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, border); } }); });
-        board.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) { const isLogo = (LOGO_TARGET[y][x] === 1); let color = COLORS.trash; let shadow = null; let highlight = null; if (isLogo) { if (currentLevel === 1) { color = COLORS.main; shadow = COLORS.main; highlight = COLORS.highlight; } else if (currentLevel === 2) { color = getPixelColor(x, y, 2); shadow = COLORS.main; highlight = null; } else if (currentLevel === 3) { color = '#FFFFFF'; shadow = 'rgba(255, 255, 255, 0.8)'; highlight = null; } } drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, color, null, shadow); if (highlight && currentLevel === 1) { ctx.fillStyle = highlight; ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4); } } }); });
+        LOGO_TARGET.forEach((row, y) => { 
+            row.forEach((val, x) => { 
+                if (val === 1 && board[y][x] === 0) { 
+                    let fill = COLORS.ghostFill; let border = COLORS.ghostBorder; let shadow = null;
+                    if(currentLevel === 2) { 
+                        const pColor = getPixelColor(x, y, 2); 
+                        // CHECK NEIGHBORS FOR EDGE
+                        let isEdge = false;
+                        if (y > 0 && LOGO_TARGET[y-1][x] === 0) isEdge = true;
+                        else if (y < ROWS-1 && LOGO_TARGET[y+1][x] === 0) isEdge = true;
+                        else if (x > 0 && LOGO_TARGET[y][x-1] === 0) isEdge = true;
+                        else if (x < COLS-1 && LOGO_TARGET[y][x+1] === 0) isEdge = true;
+
+                        if (isEdge && pColor) {
+                            border = pColor; fill = 'rgba(0,0,0,0)'; shadow = pColor;
+                        } else {
+                            border = 'rgba(255, 255, 255, 0.05)'; // Very faint internal
+                            fill = 'rgba(0,0,0,0)';
+                        }
+                    } else if (currentLevel === 3) { 
+                        fill = 'rgba(255, 255, 255, 0.2)'; border = 'rgba(255, 255, 255, 0.5)'; 
+                    } 
+                    drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, border, shadow); 
+                } 
+            }); 
+        });
+        board.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) { const isLogo = (LOGO_TARGET[y][x] === 1); let color = COLORS.trash; let shadow = null; let highlight = null; if (isLogo) { if (currentLevel === 1) { color = COLORS.main; shadow = COLORS.main; highlight = COLORS.highlight; } else if (currentLevel === 2) { color = getPixelColor(x, y, 2); shadow = null; highlight = null; } else if (currentLevel === 3) { color = '#FFFFFF'; shadow = 'rgba(255, 255, 255, 0.8)'; highlight = null; } } drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, color, null, shadow); if (highlight && currentLevel === 1) { ctx.fillStyle = highlight; ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4); } } }); });
         progressBar.style.width = calculateScore() + '%';
         
-        // DRAW GHOST PIECE
         if (currentPiece && !isVictoryPhase) {
             let ghost = { matrix: currentPiece.matrix, x: currentPiece.x, y: currentPiece.y };
             while (!collide(board, ghost)) { ghost.y++; }
