@@ -157,19 +157,17 @@
         }
         .btn-buy-token:active { transform: scale(0.95); opacity: 0.9; }
 
-        /* HEADER FIX - MORE SPACING */
+        /* HEADER FIX */
         .lb-header { 
             display: grid; 
-            grid-template-columns: 40px 1fr 50px 60px; /* Increased Rank width */
+            grid-template-columns: 40px 1fr 50px 60px;
             width: 100%; max-width: 340px;
             font-size: 10px; color: #666; 
             padding: 0 10px 5px 10px; 
             font-weight: bold; text-transform: uppercase; 
         }
-        /* LIST ROWS MATCH HEADER */
-        .lb-row { display: grid; grid-template-columns: 40px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
-        
         .lb-list { width: 100%; max-width: 340px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
+        .lb-row { display: grid; grid-template-columns: 40px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
         .lb-row:first-child { color: #FFD700; } 
         .lb-rank { color: #666; font-weight: bold; }
         .lb-addr { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
@@ -213,10 +211,16 @@
         .score-big { font-size: 40px; font-weight: bold; margin: 10px 0 5px 0; }
         .time-display { font-size: 16px; color: #888; margin-bottom: 20px; font-family: monospace; }
         .overlay-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
-        .menu-btn { width: 100%; max-width: 220px; padding: 12px; border-radius: 20px; border: 1px solid #444; background: #222; color: #fff; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 13px; }
+        
+        .menu-btn { 
+            width: 100%; max-width: 220px; padding: 12px; 
+            border-radius: 20px; border: 1px solid #444; 
+            background: #222; color: #fff; 
+            font-weight: bold; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 13px; margin: 0;
+        }
         .btn-action { background: #fff; color: #000; border: none; }
-        .secondary-actions { display: flex; gap: 10px; width: 100%; max-width: 220px; }
-        .secondary-actions .menu-btn { flex: 1; margin: 0; padding: 10px; font-size: 12px; }
 
     </style>
 </head>
@@ -301,12 +305,11 @@
                 <div class="overlay-btns">
                     <button class="menu-btn btn-action" id="btnNextLevel" onclick="goToLevels()" style="display:none">NEXT LEVEL ➝</button>
                     
-                    <button class="menu-btn" onclick="openLeaderboard()">🏆 CHECK LEADERBOARD</button>
+                    <button class="menu-btn" id="btnTryAgain" onclick="restartLevel()">TRY AGAIN</button>
 
-                    <div class="secondary-actions">
-                        <button class="menu-btn" onclick="restartLevel()">TRY AGAIN</button>
-                        <button class="menu-btn" onclick="goToLevels()">MENU</button>
-                    </div>
+                    <button class="menu-btn" id="btnCheckLb" onclick="openLeaderboard()">CHECK LEADERBOARD</button>
+
+                    <button class="menu-btn" id="btnMenu" onclick="goToLevels()">MENU</button>
                 </div>
 
             </div>
@@ -412,16 +415,34 @@
     function displayOverlay(isWin) {
         document.getElementById('finalScore').innerText = calculateScore();
         const title = document.getElementById('endTitle'); const nextBtn = document.getElementById('btnNextLevel'); const timeDisplay = document.getElementById('finalTimeDisplay');
+        const btnTry = document.getElementById('btnTryAgain');
+        const btnLb = document.getElementById('btnCheckLb');
+        const btnMenu = document.getElementById('btnMenu');
         
+        // RESET DISPLAYS
+        nextBtn.style.display = 'none';
+        btnTry.style.display = 'none';
+        btnLb.style.display = 'none';
+        btnMenu.style.display = 'none';
+
         if (isWin) {
             title.innerText = "LEVEL COMPLETE"; timeDisplay.innerText = `TIME: ${finishTime.toFixed(2)}s`;
             let winColor = '#0052FF'; let nextLvlId = 2; if (currentLevel === 2) { winColor = '#7B3FE4'; nextLvlId = 3; } if (currentLevel === 3) { winColor = '#FFFFFF'; nextLvlId = 4; } 
             title.style.color = winColor; title.style.textShadow = `0 0 20px ${winColor}`;
             
             if(currentLevel < 3) { nextBtn.style.display = 'flex'; nextBtn.innerText = `UNLOCK LVL ${nextLvlId} ➝`; } else { nextBtn.style.display = 'flex'; nextBtn.innerText = "SOON ➝"; }
+            
+            btnLb.style.display = 'flex';
+            btnMenu.style.display = 'flex';
+
         } else { 
             title.innerText = "GAME OVER"; title.style.color = "#fff"; title.style.textShadow = "none"; 
-            nextBtn.style.display = 'none'; timeDisplay.innerText = ""; 
+            timeDisplay.innerText = ""; 
+            
+            // FAIL SEQUENCE
+            btnTry.style.display = 'flex';
+            btnLb.style.display = 'flex';
+            btnMenu.style.display = 'flex';
         }
         endScreen.classList.add('visible');
     }
