@@ -274,9 +274,10 @@
         }
     } catch(e) { console.log("Init Error"); }
 
-    // --- WALLET ---
+    // --- WALLET LOGIC ---
     let userAddress = null;
     let localBestTimes = { 1: null, 2: null, 3: null }; 
+    let unlockedLevels = [1];
     
     async function connectWallet() {
         if (typeof window.ethereum !== 'undefined') {
@@ -298,7 +299,7 @@
                     await syncProfile();
                 }
             } catch (error) { alert("Connection failed: " + error.message); }
-        } else { alert("No wallet found. Open in Coinbase Wallet browser."); }
+        } else { alert("No wallet found."); }
     }
 
     function disconnectWallet() {
@@ -416,8 +417,7 @@
     }
 
     // --- GAME ENGINE ---
-    let unlockedLevels = [1];
-    let currentLevel = 1; let startTime = 0; let finishTime = 0;
+    let currentLevel = 1; let finishTime = 0;
 
     try { const save = localStorage.getItem('basedTetrisSave'); if(save) unlockedLevels = JSON.parse(save); } catch(e) {}
     function saveProgressLocal() { localStorage.setItem('basedTetrisSave', JSON.stringify(unlockedLevels)); }
@@ -462,6 +462,9 @@
         2: { themeClass: 'theme-zora' },
         3: { themeClass: 'theme-coinbase' }
     };
+    
+    // SPEED SETTINGS (ms per drop)
+    const DROP_SPEEDS = { 1: 800, 2: 700, 3: 600 };
 
     let COLORS = {}; let LOGO_TARGET = []; let totalTargetPixels = 0;
     let board = []; let currentPiece = null;
@@ -597,8 +600,17 @@
     function update(time = 0) { 
         if (!isGameRunning && !isVictoryPhase) return; 
         const deltaTime = time - lastTime; lastTime = time; dropCounter += deltaTime; 
-        if(isGameRunning && !isVictoryPhase) { timerDisplay.innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s"; }
-        if (!isVictoryPhase && dropCounter > 1000) playerDrop(); 
+        
+        // LIVE TIMER UPDATE
+        if(isGameRunning && !isVictoryPhase) {
+            const currentSec = (Date.now() - startTime) / 1000;
+            timerDisplay.innerText = currentSec.toFixed(2) + "s";
+        }
+
+        // --- PROGRESSIVE SPEED ---
+        let speed = DROP_SPEEDS[currentLevel] || 800;
+        if (!isVictoryPhase && dropCounter > speed) playerDrop(); 
+        
         draw(); 
         animationId = requestAnimationFrame(update); 
     }
