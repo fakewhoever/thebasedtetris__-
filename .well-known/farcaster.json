@@ -9,7 +9,7 @@
     "splashImageUrl": "https://thebasedtetris.xyz/icon.png",
     "splashBackgroundColor": "#000000",
     "subtitle": "The hardest Tetris on Base.",
-    "description": "The hardest Tetris on Base. Onchain leaderboard. The player who holds Rank #1 at the end of the season wins tokens.",
+    "description": "The hardest Tetris on Base. Onchain leaderboard. The player who holds Rank 1 at the end of the season wins tokens.",
     "primaryCategory": "games",
     "screenshotUrls": [
       "https://thebasedtetris.xyz/screen.png"
@@ -25,7 +25,8 @@
     "tagline": "The hardest Tetris on Base.",
     "ogTitle": "The Based Tetris",
     "ogDescription": "The hardest puzzle on Base. Pure skill. Top 1 gets the airdrop.",
-    "ogImageUrl": "https://thebasedtetris.xyz/icon.png"
+    "ogImageUrl": "https://thebasedtetris.xyz/icon.png",
+    "castShareUrl": "https://warpcast.com/~/compose?text=I%27m+grinding+The+Based+Tetris.+Top+1+wins+500k+tokens.+Can+you+beat+me%3F&embeds[]=https://thebasedtetris.xyz"
   },
   "accountAssociation": {
     "header": "eyJmaWQiOjQwODY2MywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDFlM0QwNGY0NEE5OTk5NjQ2ZUVEN0FlN2M5RTUwMzExYUExMjhmQzUifQ",
