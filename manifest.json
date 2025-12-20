@@ -1,0 +1,16 @@
+{
+  "name": "The Based Tetris",
+  "short_name": "BasedTetris",
+  "description": "Top 1 wins 500,000 $fakewhoever tokens. Play on Base.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0052FF",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
