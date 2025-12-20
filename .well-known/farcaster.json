@@ -16,16 +16,16 @@
     ],
     "heroImageUrl": "https://thebasedtetris.xyz/icon.png",
     "tags": [
+      "game",
       "arcade",
       "base",
       "puzzle",
-      "airdrop",
-      "game"
+      "airdrop"
     ],
     "tagline": "The hardest Tetris on Base.",
     "ogTitle": "The Based Tetris",
-    "ogDescription": "The hardest Tetris on Base. Pure skill, onchain leaderboard. Top 1 gets the airdrop.",
+    "ogDescription": "The hardest puzzle on Base. Pure skill. Top 1 gets the airdrop.",
     "ogImageUrl": "https://thebasedtetris.xyz/icon.png",
-    "castShareUrl": "https://farcaster.xyz/~/compose?text=I%27m+grinding+The+Based+Tetris.+Top+1+wins+500k+tokens.+Can+you+beat+me%3F&embeds[]=https://thebasedtetris.xyz"
+    "castShareUrl": "https://warpcast.com/~/compose?text=I%27m+grinding+The+Based+Tetris.+Top+1+wins+500k+tokens.+Can+you+beat+me%3F&embeds[]=https://thebasedtetris.xyz"
   }
 }
