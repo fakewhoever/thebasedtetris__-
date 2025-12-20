@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <title>THE BASED TETRIS V2</title>
+    <title>THE BASED TETRIS</title>
     
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="icon.png">
@@ -247,7 +246,7 @@
     </div>
 
     <div id="screen-start" class="screen active">
-        <h1>THE<br>BASED<br>TETRIS V2</h1>
+        <h1>THE<br>BASED<br>TETRIS</h1>
         <p class="desc">Build the logos.<br>Prove you are onchain.</p>
         <button class="btn-main" onclick="goToLevels()">START GAME</button>
         <button class="btn-secondary" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
@@ -333,23 +332,23 @@
     </div>
 
 <script>
-    // 👇 ИСПРАВЛЕНИЕ: ПРОВЕРЯЕМ ВСЕ ВОЗМОЖНЫЕ ВАРИАНТЫ
+    // 👇 ИСПРАВЛЕННАЯ ЛОГИКА ЗАГРУЗКИ (С ПОДДЕРЖКОЙ ВСЕХ ВЕРСИЙ SDK)
     window.addEventListener('load', () => {
-        const interval = setInterval(() => {
-            // Пробуем разные имена, потому что SDK мог изменить название переменной
+        const checkSdk = setInterval(() => {
+            // Проверяем все возможные варианты, так как в разных версиях SDK по-разному называется
             const sdk = window.miniapp?.sdk || window.farcaster?.sdk || window.sdk;
             
-            if (sdk && sdk.actions) {
-                console.log("SDK Found! Calling ready()...");
+            if (sdk && sdk.actions && sdk.actions.ready) {
+                console.log("MiniApp SDK found!");
                 sdk.actions.ready();
-                clearInterval(interval);
+                clearInterval(checkSdk);
             }
         }, 100);
         
-        // Тайм-аут через 10 секунд (на всякий случай)
-        setTimeout(() => clearInterval(interval), 10000);
+        // Перестраховка: отключаем таймер через 10 сек
+        setTimeout(() => clearInterval(checkSdk), 10000);
     });
-    // 👆 КОНЕЦ ИСПРАВЛЕНИЙ
+    // 👆
 
     // --- LINK TO YOUR CREATOR TOKEN ---
     const CREATOR_TOKEN_LINK = 'https://zora.co/@fakewhoever'; 
