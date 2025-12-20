@@ -5,8 +5,8 @@
     "signature": "isDYA6nYqktnzZpQ07+X7GTW+PBe0vYQIS7f2ZkyggBTGu/217O/bZrgDC6/AT4EsiFGbTijGFQ5CTNe+Z4Hnhw="
   },
   "frame": {
-    "name": "The Based Tetris",
     "version": "1",
+    "name": "The Based Tetris",
     "iconUrl": "https://thebasedtetris.xyz/icon.png",
     "homeUrl": "https://thebasedtetris.xyz",
     "imageUrl": "https://thebasedtetris.xyz/icon.png",
@@ -14,7 +14,7 @@
     "splashImageUrl": "https://thebasedtetris.xyz/icon.png",
     "splashBackgroundColor": "#000000",
     "subtitle": "The hardest Tetris on Base.",
-    "description": "The hardest Tetris on Base. Onchain leaderboard. The player who holds Rank #1 at the end of the season wins tokens.",
+    "description": "The hardest Tetris on Base. Onchain leaderboard. Top 1 wins 500k tokens.",
     "primaryCategory": "games",
     "screenshotUrls": [
       "https://thebasedtetris.xyz/screen.png"
