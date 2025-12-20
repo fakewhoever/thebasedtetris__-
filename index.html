@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>THE BASED TETRIS</title>
+    
+    <title>THE BASED TETRIS V2</title>
     
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="icon.png">
@@ -19,7 +20,7 @@
 
     <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://thebasedtetris.xyz/icon.png","button":{"title":"PLAY NOW 🕹️","action":{"type":"launch_frame","name":"The Based Tetris","url":"https://thebasedtetris.xyz","splashImageUrl":"https://thebasedtetris.xyz/icon.png","splashBackgroundColor":"#000000"}}}' />
     
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk@0.0.1/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk@0.2.1/dist/index.min.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -246,7 +247,7 @@
     </div>
 
     <div id="screen-start" class="screen active">
-        <h1>THE<br>BASED<br>TETRIS</h1>
+        <h1>THE<br>BASED<br>TETRIS V2</h1>
         <p class="desc">Build the logos.<br>Prove you are onchain.</p>
         <button class="btn-main" onclick="goToLevels()">START GAME</button>
         <button class="btn-secondary" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
@@ -332,18 +333,21 @@
     </div>
 
 <script>
-    // 👇 ИСПРАВЛЕНИЕ 3: ЖЕСТКАЯ ЗАГРУЗКА (ЧТОБЫ УБРАТЬ СИНИЙ ЭКРАН)
+    // 👇 ИСПРАВЛЕНИЕ: ПРОВЕРЯЕМ ВСЕ ВОЗМОЖНЫЕ ВАРИАНТЫ
     window.addEventListener('load', () => {
-        // Долбим SDK каждую секунду, пока он не проснется
-        const checkSdk = setInterval(() => {
-            if (window.farcaster && window.farcaster.sdk) {
-                window.farcaster.sdk.actions.ready();
-                clearInterval(checkSdk); // Выключаем проверку
+        const interval = setInterval(() => {
+            // Пробуем разные имена, потому что SDK мог изменить название переменной
+            const sdk = window.miniapp?.sdk || window.farcaster?.sdk || window.sdk;
+            
+            if (sdk && sdk.actions) {
+                console.log("SDK Found! Calling ready()...");
+                sdk.actions.ready();
+                clearInterval(interval);
             }
         }, 100);
         
-        // Страховка через таймер
-        setTimeout(() => clearInterval(checkSdk), 5000);
+        // Тайм-аут через 10 секунд (на всякий случай)
+        setTimeout(() => clearInterval(interval), 10000);
     });
     // 👆 КОНЕЦ ИСПРАВЛЕНИЙ
 
