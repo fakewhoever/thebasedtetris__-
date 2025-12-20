@@ -41,13 +41,14 @@
             touch-action: none; user-select: none;
         }
 
-        /* WALLET UI */
+        /* --- WALLET UI (UNIFIED SIZES) --- */
         .wallet-container { 
             position: absolute; top: 15px; right: 15px; z-index: 200; 
             display: flex; align-items: center; gap: 8px;
-            transition: opacity 0.3s ease; /* Fade effect */
+            transition: opacity 0.3s ease;
         }
         
+        /* 1. Connect Button */
         .btn-connect {
             background: rgba(0, 82, 255, 0.3); border: 1px solid var(--theme-base);
             color: #fff; padding: 8px 16px; border-radius: 20px;
@@ -55,28 +56,35 @@
             transition: 0.2s; text-transform: uppercase;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            height: 32px; /* Fixed height for consistency */
+            display: flex; align-items: center;
         }
         .btn-connect:active { transform: scale(0.95); background: var(--theme-base); }
 
+        /* 2. Connected State Container */
         .connected-ui { display: none; align-items: center; gap: 6px; }
         
+        /* 3. Address Pill (Matches Connect Button) */
         .address-pill {
             background: var(--theme-base); color: #fff; 
-            padding: 6px 12px; border-radius: 20px;
-            font-size: 11px; font-weight: 700; 
+            padding: 0 16px; border-radius: 20px; /* Horizontal padding only, height set by flex/height */
+            height: 32px; /* Fixed height matches button */
+            font-size: 11px; font-weight: 800; 
             border: 1px solid rgba(255,255,255,0.2);
             cursor: default;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex; align-items: center;
         }
         
+        /* 4. Disconnect (X) Button */
         .btn-disconnect {
             background: rgba(255, 50, 50, 0.25); 
             border: 1px solid rgba(255, 80, 80, 0.5);
             color: #ffcccc; 
-            width: 26px; height: 26px; 
+            width: 32px; height: 32px; /* Matches height of other buttons */
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: bold; cursor: pointer;
+            font-size: 14px; font-weight: bold; cursor: pointer;
             transition: 0.2s;
             backdrop-filter: blur(5px);
         }
@@ -158,7 +166,7 @@
         /* GAME UI */
         .game-ui-header {
             flex: 0 0 auto;
-            padding-top: 30px; /* Reduced padding since Wallet is hidden */
+            padding-top: 30px; 
             padding-bottom: 5px;
             text-align: center;
             width: 100%;
@@ -206,7 +214,6 @@
 
     <div id="walletBox" class="wallet-container">
         <button id="btnConnect" class="btn-connect" onclick="connectWallet()">CONNECT WALLET</button>
-        
         <div id="connectedUi" class="connected-ui">
             <div class="address-pill" id="displayAddress">0x00...000</div>
             <button class="btn-disconnect" onclick="disconnectWallet()">✕</button>
@@ -216,10 +223,8 @@
     <div id="screen-start" class="screen active">
         <h1>THE<br>BASED<br>TETRIS</h1>
         <p class="desc">Build the logos.<br>Prove you are onchain.</p>
-        
         <button class="btn-main" onclick="goToLevels()">START GAME</button>
         <button class="btn-secondary" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
-
         <div id="statusPill" class="status-pill guest" onclick="connectWallet()">
             ⚠️ Score Not Saving. Connect Wallet ↗
         </div>
@@ -242,7 +247,6 @@
             <div class="lb-tab" id="tab-2" onclick="loadLeaderboard(2)">LVL 2</div>
             <div class="lb-tab" id="tab-3" onclick="loadLeaderboard(3)">LVL 3</div>
         </div>
-        
         <div id="userStats" class="lb-user-stats">
             <div class="lb-user-title">YOUR STATS</div>
             <div class="lb-row" style="border:none; padding:0;">
@@ -252,7 +256,6 @@
                 <span id="uTime" class="lb-time">--</span>
             </div>
         </div>
-
         <div class="lb-header">
             <span>Rank</span>
             <span>Player</span>
@@ -301,9 +304,10 @@
         }
     } catch(e) { console.log("Init Error"); }
 
-    // --- WALLET & TOGGLE LOGIC ---
+    // --- WALLET LOGIC ---
     let userAddress = null;
     let localBestTimes = { 1: null, 2: null, 3: null }; 
+    let unlockedLevels = [1];
     
     async function connectWallet() {
         if (typeof window.ethereum !== 'undefined') {
@@ -324,12 +328,8 @@
                     
                     await syncProfile();
                 }
-            } catch (error) { 
-                alert("Connection failed: " + error.message);
-            }
-        } else {
-            alert("No wallet found. Open in Coinbase Wallet browser.");
-        }
+            } catch (error) { alert("Connection failed: " + error.message); }
+        } else { alert("No wallet found."); }
     }
 
     function disconnectWallet() {
@@ -363,7 +363,6 @@
         } catch(e) { console.error("Sync error:", e); }
     }
 
-    // --- SAVING ---
     async function saveGameResult(lvl, time) {
         if(!db || !userAddress) return;
         try {
@@ -391,7 +390,6 @@
         } catch(e) { console.error("Fail save error:", e); }
     }
 
-    // --- LEADERBOARD ---
     async function loadLeaderboard(lvl) {
         document.querySelectorAll('.lb-tab').forEach((t, i) => {
             if(i+1 === lvl) t.classList.add('active'); else t.classList.remove('active');
@@ -446,20 +444,13 @@
         } catch(e) { console.error(e); list.innerHTML = '<div class="loading-text">Error loading scores.</div>'; }
     }
 
-    // --- GAME STATE ---
-    let unlockedLevels = [1];
-    let currentLevel = 1;
-    let startTime = 0;
-    let finishTime = 0;
-
+    // --- GAME ENGINE ---
+    let currentLevel = 1; let startTime = 0; let finishTime = 0;
     try { const save = localStorage.getItem('basedTetrisSave'); if(save) unlockedLevels = JSON.parse(save); } catch(e) {}
     function saveProgressLocal() { localStorage.setItem('basedTetrisSave', JSON.stringify(unlockedLevels)); }
-    function saveProgress() { saveProgressLocal(); updateLevelScreen(); } 
-
+    
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
-        
-        // WALLET VISIBILITY LOGIC
         if(id === 'screen-game') {
             document.getElementById('walletBox').style.opacity = '0';
             document.getElementById('walletBox').style.pointerEvents = 'none';
@@ -467,7 +458,6 @@
             document.getElementById('walletBox').style.opacity = '1';
             document.getElementById('walletBox').style.pointerEvents = 'auto';
         }
-
         const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10);
     }
     
@@ -482,7 +472,6 @@
         if(unlockedLevels.includes(3)) { l3.classList.remove('locked'); i3.innerText = '⚪'; } else { l3.classList.add('locked'); i3.innerText = '🔒'; }
     }
 
-    // --- GAME ENGINE ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const progressBar = document.getElementById('progressBar');
@@ -490,16 +479,9 @@
     const headerSub = document.getElementById('headerSub');
     const timerDisplay = document.getElementById('liveTimer');
     
-    const COLS = 11; ROWS = 20; 
-    const BLOCK_SIZE = canvas.width / COLS;
-    const BLOCK_RADIUS = 4;
-
-    const LEVELS = {
-        1: { themeClass: 'theme-base' },
-        2: { themeClass: 'theme-zora' },
-        3: { themeClass: 'theme-coinbase' }
-    };
-
+    const COLS = 11; ROWS = 20; const BLOCK_SIZE = canvas.width / COLS; const BLOCK_RADIUS = 4;
+    const LEVELS = { 1: { themeClass: 'theme-base' }, 2: { themeClass: 'theme-zora' }, 3: { themeClass: 'theme-coinbase' } };
+    
     let COLORS = {}; let LOGO_TARGET = []; let totalTargetPixels = 0;
     let board = []; let currentPiece = null;
     let dropCounter = 0; let lastTime = 0; let isGameRunning = false; let animationId = null;
@@ -518,22 +500,13 @@
     function initLogo(lvl) {
         LOGO_TARGET = Array.from({length: ROWS}, () => Array(COLS).fill(0));
         const paint = (x, y, shape) => { shape.forEach((row, r) => row.forEach((v, c) => { if(v && LOGO_TARGET[y+r] && LOGO_TARGET[y+r][x+c] !== undefined) LOGO_TARGET[y+r][x+c] = 1; })); };
-
-        if (lvl === 1) {
-            const shapeB = [[1,0,0],[1,1,1],[1,1,1],[1,1,1]]; const shapeSquare = [[1,1,1],[1,1,1],[1,1,1]];
-            paint(2, 8, shapeB); paint(6, 9, shapeSquare); paint(2, 13, shapeSquare); paint(6, 13, shapeSquare);
-        } else if (lvl === 2) {
-            const sphereMap = [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]];
-            paint(1, 7, sphereMap); 
-        } else if (lvl === 3) {
-            const cMap = [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,0,0,0,1,1,1],[1,1,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,1,1],[1,1,1,0,0,0,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]];
-            paint(1, 7, cMap);
-        }
+        if (lvl === 1) { paint(2, 8, [[1,0,0],[1,1,1],[1,1,1],[1,1,1]]); paint(6, 9, [[1,1,1],[1,1,1],[1,1,1]]); paint(2, 13, [[1,1,1],[1,1,1],[1,1,1]]); paint(6, 13, [[1,1,1],[1,1,1],[1,1,1]]); } 
+        else if (lvl === 2) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); } 
+        else if (lvl === 3) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,0,0,0,1,1,1],[1,1,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,1,1],[1,1,1,0,0,0,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); }
         totalTargetPixels = 0; LOGO_TARGET.forEach(row => row.forEach(c => totalTargetPixels += c));
     }
 
     const SHAPES = [ [[1, 1, 1, 1]], [[1, 1], [1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 1], [1, 0, 0]], [[1, 1, 1], [0, 0, 1]], [[1, 1, 0], [0, 1, 1]], [[0, 1, 1], [1, 1, 0]] ];
-
     function createPiece() { const typeId = Math.floor(Math.random() * SHAPES.length); const matrix = SHAPES[typeId].map(row => [...row]); return { matrix, x: Math.floor(COLS / 2) - Math.floor(matrix[0].length / 2), y: 0 }; }
     function rotateMatrix(matrix) { const N = matrix.length; const M = matrix[0].length; const result = []; for (let i = 0; i < M; i++) { result[i] = []; for (let j = 0; j < N; j++) result[i][j] = matrix[N - 1 - j][i]; } return result; }
     function collide(arena, player) { const [m, o] = [player.matrix, player]; for (let y = 0; y < m.length; ++y) { for (let x = 0; x < m[y].length; ++x) { if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true; } } return false; }
@@ -551,9 +524,7 @@
             const px = x - 1; const py = y - 7;
             const zoraColors = [[null,null,'#43427e','#426bda','#6986ec','#9497e8','#9296e9',null,null],[null,'#3f2c4e','#395fc8','#587fef','#aea1e3','#ebc1e2','#eac2e2','#a89fe4',null],['#3c1f1b','#3f397b','#3965de','#6485f0','#caade2','#fce4ee','#fde0ec','#c5a9e2','#617fe9'],['#351a1a','#3d3b7e','#3664dd','#547ff2','#a49ee4','#e4bce0','#e3bae1','#9f9ce6','#5079e8'],['#381916','#3f3063','#365acd','#3c6ff2','#5d82f1','#8392ea','#8391ec','#5c81ef','#3e67d7'],['#552a1b','#321b2e','#3b439b','#335edb','#366cee','#3e72f2','#3e70f1','#3965dc','#3f4a9d'],['#85532b','#351514','#3b2140','#3d4091','#3552ba','#3557c7','#3953bc','#3d438e','#3f283b'],[null,'#774325','#391714','#2f1723','#3a2344','#3c2750','#39223e','#361c22',null],[null,null,'#89572c','#66351f','#4b241a','#46231a','#5b3222',null,null]];
             if (px >= 0 && px < 9 && py >= 0 && py < 9) return zoraColors[py][px] || COLORS.trash;
-        } else if (lvl === 3) {
-            return '#FFFFFF';
-        }
+        } else if (lvl === 3) return '#FFFFFF';
         return COLORS.trash;
     }
 
@@ -572,67 +543,26 @@
     function playerRotate() { const oldMatrix = currentPiece.matrix; const rotated = rotateMatrix(currentPiece.matrix); currentPiece.matrix = rotated; const pos = currentPiece.x; let offset = 1; while (collide(board, currentPiece)) { currentPiece.x += offset; offset = -(offset + (offset > 0 ? 1 : -1)); if (Math.abs(offset) > rotated[0].length + 1) { currentPiece.x = pos; currentPiece.matrix = oldMatrix; return; } } }
     function stopGameLoop() { isGameRunning = false; cancelAnimationFrame(animationId); clearTimeout(winDelayTimer); isVictoryPhase = false; }
 
-    function showEndScreen(isWin) {
-        if(isWin) {
-            isVictoryPhase = true;
-            finishTime = (Date.now() - startTime) / 1000;
-            let nextLvl = currentLevel + 1;
-            if(nextLvl <= 3 && !unlockedLevels.includes(nextLvl)) {
-                unlockedLevels.push(nextLvl);
-                saveProgressLocal();
-            }
-            saveGameResult(currentLevel, finishTime);
-            headerSub.innerText = "LEVEL COMPLETE";
-            let glowColor = '#0052FF'; if (currentLevel === 2) glowColor = '#7B3FE4'; if (currentLevel === 3) glowColor = '#FFFFFF'; 
-            headerSub.style.color = glowColor; headerSub.style.textShadow = `0 0 15px ${glowColor}`; headerSub.classList.add('pulse-anim');
-            winDelayTimer = setTimeout(() => { isVictoryPhase = false; isGameRunning = false; cancelAnimationFrame(animationId); displayOverlay(true); }, 4000); 
-        } else { 
-            stopGameLoop(); 
-            recordFail(currentLevel);
-            displayOverlay(false); 
-        }
-    }
-
-    function displayOverlay(isWin) {
-        document.getElementById('finalScore').innerText = calculateScore();
-        const title = document.getElementById('endTitle'); const nextBtn = document.getElementById('btnNextLevel'); const timeDisplay = document.getElementById('finalTimeDisplay');
-        if (isWin) {
-            title.innerText = "LEVEL COMPLETE"; timeDisplay.innerText = `TIME: ${finishTime.toFixed(2)}s`;
-            let winColor = '#0052FF'; let nextLvlId = 2;
-            if (currentLevel === 2) { winColor = '#7B3FE4'; nextLvlId = 3; } if (currentLevel === 3) { winColor = '#FFFFFF'; nextLvlId = 4; } 
-            title.style.color = winColor; title.style.textShadow = `0 0 20px ${winColor}`;
-            if(currentLevel < 3) { nextBtn.style.display = 'flex'; nextBtn.innerText = `UNLOCK LVL ${nextLvlId} ➝`; } else { nextBtn.style.display = 'flex'; nextBtn.innerText = "SOON ➝"; }
-        } else { title.innerText = "GAME OVER"; title.style.color = "#fff"; title.style.textShadow = "none"; nextBtn.style.display = 'none'; timeDisplay.innerText = ""; }
-        endScreen.classList.add('visible');
-    }
-
-    function checkWinCondition() { if (calculateScore() >= 100) return true; return false; }
-    function playerReset() { currentPiece = createPiece(); if (collide(board, currentPiece)) showEndScreen(false); }
-    function playerDrop() { if(isVictoryPhase) return; currentPiece.y++; if (collide(board, currentPiece)) { currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } } dropCounter = 0; }
-    function playerHardDrop() { if(isVictoryPhase) return; while (!collide(board, currentPiece)) { currentPiece.y++; } currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } draw(); }
-    function playerMove(dir) { if(isVictoryPhase) return; currentPiece.x += dir; if (collide(board, currentPiece)) currentPiece.x -= dir; }
-    
     function restartLevel() { 
         clearTimeout(winDelayTimer); isVictoryPhase = false; startTime = Date.now(); 
         headerSub.innerText = "FILL THE SHAPE"; headerSub.style.color = "#666"; headerSub.style.textShadow = "none"; headerSub.classList.remove('pulse-anim'); 
-        timerDisplay.innerText = "0.00s"; // Reset timer UI
-        initLogo(currentLevel); board = Array.from({length: ROWS}, () => Array(COLS).fill(0)); isGameRunning = true; endScreen.classList.remove('visible'); playerReset(); update(); 
+        timerDisplay.innerText = "0.00s"; initLogo(currentLevel); board = Array.from({length: ROWS}, () => Array(COLS).fill(0)); 
+        isGameRunning = true; endScreen.classList.remove('visible'); playerReset(); update(); 
     }
     
     function update(time = 0) { 
         if (!isGameRunning && !isVictoryPhase) return; 
         const deltaTime = time - lastTime; lastTime = time; dropCounter += deltaTime; 
-        
-        // LIVE TIMER UPDATE
-        if(isGameRunning && !isVictoryPhase) {
-            const currentSec = (Date.now() - startTime) / 1000;
-            timerDisplay.innerText = currentSec.toFixed(2) + "s";
-        }
-
+        if(isGameRunning && !isVictoryPhase) { timerDisplay.innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s"; }
         if (!isVictoryPhase && dropCounter > 1000) playerDrop(); 
         draw(); 
         animationId = requestAnimationFrame(update); 
     }
+
+    function playerReset() { currentPiece = createPiece(); if (collide(board, currentPiece)) showEndScreen(false); }
+    function playerDrop() { if(isVictoryPhase) return; currentPiece.y++; if (collide(board, currentPiece)) { currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } } dropCounter = 0; }
+    function playerHardDrop() { if(isVictoryPhase) return; while (!collide(board, currentPiece)) { currentPiece.y++; } currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } draw(); }
+    function playerMove(dir) { if(isVictoryPhase) return; currentPiece.x += dir; if (collide(board, currentPiece)) currentPiece.x -= dir; }
 
     const addClick = (id, fn) => { document.getElementById(id).addEventListener('click', (e) => { e.preventDefault(); if(isGameRunning) fn(); }); };
     addClick('btnLeft', () => playerMove(-1)); addClick('btnRight', () => playerMove(1)); addClick('btnRotate', () => playerRotate());
