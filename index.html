@@ -17,11 +17,9 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://thebasedtetris.xyz/icon.png">
 
-    <meta property="fc:frame" content="vNext">
-    <meta property="fc:frame:image" content="https://thebasedtetris.xyz/icon.png">
-    <meta property="fc:frame:button:1" content="PLAY NOW 🕹️">
-    <meta property="fc:frame:button:1:action" content="link">
-    <meta property="fc:frame:button:1:target" content="https://thebasedtetris.xyz">
+    <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://thebasedtetris.xyz/icon.png","button":{"title":"PLAY NOW 🕹️","action":{"type":"launch_frame","name":"The Based Tetris","url":"https://thebasedtetris.xyz","splashImageUrl":"https://thebasedtetris.xyz/icon.png","splashBackgroundColor":"#000000"}}}' />
+    
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk@0.0.1/dist/index.min.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -334,6 +332,21 @@
     </div>
 
 <script>
+    // 👇 ИСПРАВЛЕНИЕ 3: ЖЕСТКАЯ ЗАГРУЗКА (ЧТОБЫ УБРАТЬ СИНИЙ ЭКРАН)
+    window.addEventListener('load', () => {
+        // Долбим SDK каждую секунду, пока он не проснется
+        const checkSdk = setInterval(() => {
+            if (window.farcaster && window.farcaster.sdk) {
+                window.farcaster.sdk.actions.ready();
+                clearInterval(checkSdk); // Выключаем проверку
+            }
+        }, 100);
+        
+        // Страховка через таймер
+        setTimeout(() => clearInterval(checkSdk), 5000);
+    });
+    // 👆 КОНЕЦ ИСПРАВЛЕНИЙ
+
     // --- LINK TO YOUR CREATOR TOKEN ---
     const CREATOR_TOKEN_LINK = 'https://zora.co/@fakewhoever'; 
 
