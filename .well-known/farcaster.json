@@ -27,5 +27,10 @@
     "ogDescription": "The hardest puzzle on Base. Pure skill. Top 1 gets the airdrop.",
     "ogImageUrl": "https://thebasedtetris.xyz/icon.png",
     "castShareUrl": "https://warpcast.com/~/compose?text=I%27m+grinding+The+Based+Tetris.+Top+1+wins+500k+tokens.+Can+you+beat+me%3F&embeds[]=https://thebasedtetris.xyz"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjQwODY2MywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDFlM0QwNGY0NEE5OTk5NjQ2ZUVEN0FlN2M5RTUwMzExYUExMjhmQzUifQ",
+    "payload": "eyJkb21haW4iOiJodHRwczovL3RoZWJhc2VkdGV0cmlzLnh5eiJ9",
+    "signature": "isDYA6nYqktnzZpQ07+X7GTW+PBe0vYQIS7f2ZkyggBTGu/217O/bZrgDC6/AT4EsiFGbTijGFQ5CTNe+Z4Hnhw="
   }
 }
