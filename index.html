@@ -262,272 +262,62 @@
     </div>
 
 <script>
-    // --- CONFIG ---
     const SUPABASE_URL = 'https://fyeczwsrzdkuoaihuovw.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZWN6d3NyemRrdW9haWh1b3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzkzNTEsImV4cCI6MjA4MTcxNTM1MX0.zPAAvHSQuls4uECEUNXSOiN-09HCzvG860LOV1OENTQ';
-    
-    // --- SUPABASE INIT ---
-    let db = null; 
-    try {
-        if(window.supabase) {
-            db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-    } catch(e) { console.log("Init Error"); }
+    let db = null; try { if(window.supabase) { db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } } catch(e) { console.log("Init Error"); }
 
-    // --- WALLET LOGIC ---
-    let userAddress = null;
-    let localBestTimes = { 1: null, 2: null, 3: null }; 
-    let unlockedLevels = [1];
-    
-    async function connectWallet() {
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                if(accounts.length > 0) {
-                    userAddress = accounts[0];
-                    const shortAddr = userAddress.substring(0,6) + "..." + userAddress.substring(38);
-                    
-                    document.getElementById('btnConnect').style.display = 'none';
-                    document.getElementById('connectedUi').style.display = 'flex';
-                    document.getElementById('displayAddress').innerText = shortAddr;
-                    
-                    const pill = document.getElementById('statusPill');
-                    pill.className = 'status-pill onchain';
-                    pill.innerHTML = '🟢 RANKING & SYNC ENABLED';
-                    pill.onclick = null;
-                    
-                    await syncProfile();
-                }
-            } catch (error) { alert("Connection failed: " + error.message); }
-        } else { alert("No wallet found."); }
-    }
+    let userAddress = null; let localBestTimes = { 1: null, 2: null, 3: null }; let unlockedLevels = [1];
+    async function connectWallet() { if (typeof window.ethereum !== 'undefined') { try { const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); if(accounts.length > 0) { userAddress = accounts[0]; const shortAddr = userAddress.substring(0,6) + "..." + userAddress.substring(38); document.getElementById('btnConnect').style.display = 'none'; document.getElementById('connectedUi').style.display = 'flex'; document.getElementById('displayAddress').innerText = shortAddr; const pill = document.getElementById('statusPill'); pill.className = 'status-pill onchain'; pill.innerHTML = '🟢 RANKING & SYNC ENABLED'; pill.onclick = null; await syncProfile(); } } catch (error) { alert("Connection failed: " + error.message); } } else { alert("No wallet found."); } }
+    function disconnectWallet() { userAddress = null; localBestTimes = { 1: null, 2: null, 3: null }; document.getElementById('btnConnect').style.display = 'block'; document.getElementById('connectedUi').style.display = 'none'; const pill = document.getElementById('statusPill'); pill.className = 'status-pill guest'; pill.innerHTML = '⚠️ Score Not Saving. Connect Wallet ↗'; pill.onclick = connectWallet; }
+    async function syncProfile() { if(!db || !userAddress) return; try { const { data, error } = await db.from('players').select('*').eq('wallet_address', userAddress).single(); if(data) { const cloudLevels = data.unlocked_levels || [1]; unlockedLevels = [...new Set([...unlockedLevels, ...cloudLevels])]; saveProgressLocal(); localBestTimes[1] = data.time_1; localBestTimes[2] = data.time_2; localBestTimes[3] = data.time_3; } else { await db.from('players').insert({ wallet_address: userAddress, unlocked_levels: unlockedLevels }); } updateLevelScreen(); } catch(e) { console.error("Sync error:", e); } }
+    async function saveGameResult(lvl, time) { if(!db || !userAddress) return; try { let nextLvl = lvl + 1; let newUnlocked = [...unlockedLevels]; if(nextLvl <= 3 && !newUnlocked.includes(nextLvl)) newUnlocked.push(nextLvl); let updateData = { unlocked_levels: newUnlocked }; let currentBest = localBestTimes[lvl]; if (!currentBest || time < currentBest) { localBestTimes[lvl] = time; updateData[`time_${lvl}`] = time; } await db.from('players').update(updateData).eq('wallet_address', userAddress); } catch(e) { console.error("Save error:", e); } }
+    async function recordFail(lvl) { if(!db || !userAddress) return; try { const { data } = await db.from('players').select(`fails_${lvl}`).eq('wallet_address', userAddress).single(); let currentFails = data ? data[`fails_${lvl}`] : 0; let updateData = {}; updateData[`fails_${lvl}`] = (currentFails || 0) + 1; await db.from('players').update(updateData).eq('wallet_address', userAddress); } catch(e) { console.error("Fail save error:", e); } }
+    async function loadLeaderboard(lvl) { document.querySelectorAll('.lb-tab').forEach((t, i) => { if(i+1 === lvl) t.classList.add('active'); else t.classList.remove('active'); }); const list = document.getElementById('lbList'); list.innerHTML = '<div class="loading-text">Loading...</div>'; const userStatsDiv = document.getElementById('userStats'); userStatsDiv.style.display = 'none'; if(!db) { list.innerHTML = '<div class="loading-text">DB Offline</div>'; return; } try { const timeCol = `time_${lvl}`; const failCol = `fails_${lvl}`; const { data, error } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).not(timeCol, 'is', null).order(timeCol, { ascending: true }).limit(50); if (error) throw error; if(userAddress) { const { data: uData } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).eq('wallet_address', userAddress).single(); if(uData) { userStatsDiv.style.display = 'block'; document.getElementById('uAddr').innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38); const uTime = uData[timeCol]; const uFail = uData[failCol] || 0; document.getElementById('uTime').innerText = uTime ? uTime.toFixed(2) + "s" : "--"; document.getElementById('uFails').innerText = "💀 " + uFail; let foundRank = false; if(data) { data.forEach((p, idx) => { if(p.wallet_address.toLowerCase() === userAddress.toLowerCase()) { document.getElementById('uRank').innerText = "#" + (idx + 1); foundRank = true; } }); } if(!foundRank) document.getElementById('uRank').innerText = ">50"; } } list.innerHTML = ""; if(!data || data.length === 0) { list.innerHTML = '<div class="loading-text">No records yet.</div>'; return; } data.forEach((item, index) => { let addrDisplay = item.wallet_address.substring(0,6) + "..." + item.wallet_address.substring(38); let time = item[timeCol]; let fails = item[failCol] || 0; const div = document.createElement('div'); div.className = 'lb-row'; div.innerHTML = `<span class="lb-rank">#${index+1}</span><span class="lb-addr">${addrDisplay}</span><span class="lb-fails">💀 ${fails}</span><span class="lb-time">${time.toFixed(2)}s</span>`; list.appendChild(div); }); } catch(e) { console.error(e); list.innerHTML = '<div class="loading-text">Error loading scores.</div>'; } }
 
-    function disconnectWallet() {
-        userAddress = null;
-        localBestTimes = { 1: null, 2: null, 3: null }; 
-        document.getElementById('btnConnect').style.display = 'block';
-        document.getElementById('connectedUi').style.display = 'none';
-        
-        const pill = document.getElementById('statusPill');
-        pill.className = 'status-pill guest';
-        pill.innerHTML = '⚠️ Score Not Saving. Connect Wallet ↗';
-        pill.onclick = connectWallet;
-    }
+    let currentLevel = 1; let finishTime = 0; try { const save = localStorage.getItem('basedTetrisSave'); if(save) unlockedLevels = JSON.parse(save); } catch(e) {} function saveProgressLocal() { localStorage.setItem('basedTetrisSave', JSON.stringify(unlockedLevels)); } function saveProgress() { saveProgressLocal(); updateLevelScreen(); } 
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; }); if(id === 'screen-game') { document.getElementById('walletBox').style.opacity = '0'; document.getElementById('walletBox').style.pointerEvents = 'none'; } else { document.getElementById('walletBox').style.opacity = '1'; document.getElementById('walletBox').style.pointerEvents = 'auto'; } const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10); }
+    function goToLevels() { updateLevelScreen(); showScreen('screen-levels'); stopGameLoop(); } function backToStart() { showScreen('screen-start'); } function openLeaderboard() { showScreen('screen-leaderboard'); loadLeaderboard(1); }
+    function updateLevelScreen() { const l2 = document.getElementById('card-lvl-2'); const i2 = document.getElementById('icon-lvl-2'); if(unlockedLevels.includes(2)) { l2.classList.remove('locked'); i2.innerText = '🟣'; } else { l2.classList.add('locked'); i2.innerText = '🔒'; } const l3 = document.getElementById('card-lvl-3'); const i3 = document.getElementById('icon-lvl-3'); if(unlockedLevels.includes(3)) { l3.classList.remove('locked'); i3.innerText = '⚪'; } else { l3.classList.add('locked'); i3.innerText = '🔒'; } }
 
-    // --- SYNC ---
-    async function syncProfile() {
-        if(!db || !userAddress) return;
-        try {
-            const { data, error } = await db.from('players').select('*').eq('wallet_address', userAddress).single();
-            if(data) {
-                const cloudLevels = data.unlocked_levels || [1];
-                unlockedLevels = [...new Set([...unlockedLevels, ...cloudLevels])];
-                saveProgressLocal();
-                localBestTimes[1] = data.time_1;
-                localBestTimes[2] = data.time_2;
-                localBestTimes[3] = data.time_3;
-            } else {
-                await db.from('players').insert({ wallet_address: userAddress, unlocked_levels: unlockedLevels });
-            }
-            updateLevelScreen();
-        } catch(e) { console.error("Sync error:", e); }
-    }
-
-    // --- SAVING ---
-    async function saveGameResult(lvl, time) {
-        if(!db || !userAddress) return;
-        try {
-            let nextLvl = lvl + 1;
-            let newUnlocked = [...unlockedLevels];
-            if(nextLvl <= 3 && !newUnlocked.includes(nextLvl)) newUnlocked.push(nextLvl);
-            let updateData = { unlocked_levels: newUnlocked };
-            let currentBest = localBestTimes[lvl];
-            if (!currentBest || time < currentBest) {
-                localBestTimes[lvl] = time; 
-                updateData[`time_${lvl}`] = time;
-            }
-            await db.from('players').update(updateData).eq('wallet_address', userAddress);
-        } catch(e) { console.error("Save error:", e); }
-    }
-
-    async function recordFail(lvl) {
-        if(!db || !userAddress) return;
-        try {
-            const { data } = await db.from('players').select(`fails_${lvl}`).eq('wallet_address', userAddress).single();
-            let currentFails = data ? data[`fails_${lvl}`] : 0;
-            let updateData = {};
-            updateData[`fails_${lvl}`] = (currentFails || 0) + 1;
-            await db.from('players').update(updateData).eq('wallet_address', userAddress);
-        } catch(e) { console.error("Fail save error:", e); }
-    }
-
-    // --- LEADERBOARD ---
-    async function loadLeaderboard(lvl) {
-        document.querySelectorAll('.lb-tab').forEach((t, i) => {
-            if(i+1 === lvl) t.classList.add('active'); else t.classList.remove('active');
-        });
-        const list = document.getElementById('lbList');
-        list.innerHTML = '<div class="loading-text">Loading...</div>';
-        const userStatsDiv = document.getElementById('userStats');
-        userStatsDiv.style.display = 'none';
-
-        if(!db) { list.innerHTML = '<div class="loading-text">DB Offline</div>'; return; }
-
-        try {
-            const timeCol = `time_${lvl}`;
-            const failCol = `fails_${lvl}`;
-            const { data, error } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).not(timeCol, 'is', null).order(timeCol, { ascending: true }).limit(50);
-            if (error) throw error;
-
-            if(userAddress) {
-                const { data: uData } = await db.from('players').select(`wallet_address, ${timeCol}, ${failCol}`).eq('wallet_address', userAddress).single();
-                if(uData) {
-                    userStatsDiv.style.display = 'block';
-                    document.getElementById('uAddr').innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
-                    const uTime = uData[timeCol];
-                    const uFail = uData[failCol] || 0;
-                    document.getElementById('uTime').innerText = uTime ? uTime.toFixed(2) + "s" : "--";
-                    document.getElementById('uFails').innerText = "💀 " + uFail;
-                    let foundRank = false;
-                    if(data) {
-                        data.forEach((p, idx) => {
-                            if(p.wallet_address.toLowerCase() === userAddress.toLowerCase()) {
-                                document.getElementById('uRank').innerText = "#" + (idx + 1);
-                                foundRank = true;
-                            }
-                        });
-                    }
-                    if(!foundRank) document.getElementById('uRank').innerText = ">50";
-                }
-            }
-
-            list.innerHTML = "";
-            if(!data || data.length === 0) { list.innerHTML = '<div class="loading-text">No records yet.</div>'; return; }
-
-            data.forEach((item, index) => {
-                let addrDisplay = item.wallet_address.substring(0,6) + "..." + item.wallet_address.substring(38);
-                let time = item[timeCol]; 
-                let fails = item[failCol] || 0;
-                const div = document.createElement('div');
-                div.className = 'lb-row';
-                div.innerHTML = `<span class="lb-rank">#${index+1}</span><span class="lb-addr">${addrDisplay}</span><span class="lb-fails">💀 ${fails}</span><span class="lb-time">${time.toFixed(2)}s</span>`;
-                list.appendChild(div);
-            });
-        } catch(e) { console.error(e); list.innerHTML = '<div class="loading-text">Error loading scores.</div>'; }
-    }
-
-    // --- GAME ENGINE ---
-    let currentLevel = 1; let finishTime = 0;
-
-    try { const save = localStorage.getItem('basedTetrisSave'); if(save) unlockedLevels = JSON.parse(save); } catch(e) {}
-    function saveProgressLocal() { localStorage.setItem('basedTetrisSave', JSON.stringify(unlockedLevels)); }
-    function saveProgress() { saveProgressLocal(); updateLevelScreen(); } 
-
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
-        if(id === 'screen-game') {
-            document.getElementById('walletBox').style.opacity = '0';
-            document.getElementById('walletBox').style.pointerEvents = 'none';
-        } else {
-            document.getElementById('walletBox').style.opacity = '1';
-            document.getElementById('walletBox').style.pointerEvents = 'auto';
-        }
-        const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10);
-    }
-    
-    function goToLevels() { updateLevelScreen(); showScreen('screen-levels'); stopGameLoop(); }
-    function backToStart() { showScreen('screen-start'); }
-    function openLeaderboard() { showScreen('screen-leaderboard'); loadLeaderboard(1); }
-
-    function updateLevelScreen() {
-        const l2 = document.getElementById('card-lvl-2'); const i2 = document.getElementById('icon-lvl-2');
-        if(unlockedLevels.includes(2)) { l2.classList.remove('locked'); i2.innerText = '🟣'; } else { l2.classList.add('locked'); i2.innerText = '🔒'; }
-        const l3 = document.getElementById('card-lvl-3'); const i3 = document.getElementById('icon-lvl-3');
-        if(unlockedLevels.includes(3)) { l3.classList.remove('locked'); i3.innerText = '⚪'; } else { l3.classList.add('locked'); i3.innerText = '🔒'; }
-    }
-
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const progressBar = document.getElementById('progressBar');
-    const endScreen = document.getElementById('endScreen');
-    const headerSub = document.getElementById('headerSub');
-    const timerDisplay = document.getElementById('liveTimer');
-    
-    const COLS = 11; ROWS = 20; 
-    const BLOCK_SIZE = canvas.width / COLS;
-    const BLOCK_RADIUS = 4;
-
-    const LEVELS = {
-        1: { themeClass: 'theme-base' },
-        2: { themeClass: 'theme-zora' },
-        3: { themeClass: 'theme-coinbase' }
-    };
-    
-    // SPEED SETTINGS (ms per drop)
+    const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d'); const progressBar = document.getElementById('progressBar'); const endScreen = document.getElementById('endScreen'); const headerSub = document.getElementById('headerSub'); const timerDisplay = document.getElementById('liveTimer');
+    const COLS = 11; ROWS = 20; const BLOCK_SIZE = canvas.width / COLS; const BLOCK_RADIUS = 4;
+    const LEVELS = { 1: { themeClass: 'theme-base' }, 2: { themeClass: 'theme-zora' }, 3: { themeClass: 'theme-coinbase' } };
     const DROP_SPEEDS = { 1: 800, 2: 700, 3: 600 };
 
-    let COLORS = {}; let LOGO_TARGET = []; let totalTargetPixels = 0;
-    let board = []; let currentPiece = null;
-    let dropCounter = 0; let lastTime = 0; let isGameRunning = false; let animationId = null;
-    let winDelayTimer = null; let isVictoryPhase = false;
+    let COLORS = {}; let LOGO_TARGET = []; let totalTargetPixels = 0; let board = []; let currentPiece = null; let dropCounter = 0; let lastTime = 0; let isGameRunning = false; let animationId = null; let winDelayTimer = null; let isVictoryPhase = false;
 
     function startGame(lvl) {
         if(!unlockedLevels.includes(lvl)) return;
-        currentLevel = lvl;
-        document.body.className = LEVELS[lvl].themeClass;
-        COLORS = { main: '#0052FF', ghostBorder: 'rgba(255, 255, 255, 0.15)', ghostFill: 'rgba(255,255,255,0.02)', trash: '#222', active: '#FFF', highlight: 'rgba(255,255,255,0.5)' };
+        currentLevel = lvl; document.body.className = LEVELS[lvl].themeClass;
+        COLORS = { main: '#0052FF', ghostBorder: 'rgba(255, 255, 255, 0.15)', ghostFill: 'rgba(255,255,255,0.02)', trash: '#222', active: '#FFF', highlight: 'rgba(255,255,255,0.5)', ghostPieceBorder: 'rgba(255, 255, 255, 0.3)', ghostPieceFill: 'rgba(255, 255, 255, 0.05)' };
+        if(lvl === 2) { COLORS.main = '#7B3FE4'; }
         if(lvl === 3) { COLORS.main = '#FFFFFF'; COLORS.highlight = '#FFFFFF'; }
-        showScreen('screen-game');
-        restartLevel();
+        showScreen('screen-game'); restartLevel();
     }
 
-    function initLogo(lvl) {
-        LOGO_TARGET = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-        const paint = (x, y, shape) => { shape.forEach((row, r) => row.forEach((v, c) => { if(v && LOGO_TARGET[y+r] && LOGO_TARGET[y+r][x+c] !== undefined) LOGO_TARGET[y+r][x+c] = 1; })); };
-
-        if (lvl === 1) {
-            const shapeB = [[1,0,0],[1,1,1],[1,1,1],[1,1,1]]; const shapeSquare = [[1,1,1],[1,1,1],[1,1,1]];
-            paint(2, 8, shapeB); paint(6, 9, shapeSquare); paint(2, 13, shapeSquare); paint(6, 13, shapeSquare);
-        } else if (lvl === 2) {
-            const sphereMap = [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]];
-            paint(1, 7, sphereMap); 
-        } else if (lvl === 3) {
-            const cMap = [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,0,0,0,1,1,1],[1,1,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,1,1],[1,1,1,0,0,0,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]];
-            paint(1, 7, cMap);
-        }
-        totalTargetPixels = 0; LOGO_TARGET.forEach(row => row.forEach(c => totalTargetPixels += c));
-    }
-
+    function initLogo(lvl) { LOGO_TARGET = Array.from({length: ROWS}, () => Array(COLS).fill(0)); const paint = (x, y, shape) => { shape.forEach((row, r) => row.forEach((v, c) => { if(v && LOGO_TARGET[y+r] && LOGO_TARGET[y+r][x+c] !== undefined) LOGO_TARGET[y+r][x+c] = 1; })); }; if (lvl === 1) { paint(2, 8, [[1,0,0],[1,1,1],[1,1,1],[1,1,1]]); paint(6, 9, [[1,1,1],[1,1,1],[1,1,1]]); paint(2, 13, [[1,1,1],[1,1,1],[1,1,1]]); paint(6, 13, [[1,1,1],[1,1,1],[1,1,1]]); } else if (lvl === 2) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); } else if (lvl === 3) { paint(1, 7, [[0,0,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,0,0,0,1,1,1],[1,1,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,1,1],[1,1,1,0,0,0,1,1,1],[0,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,0,0]]); } totalTargetPixels = 0; LOGO_TARGET.forEach(row => row.forEach(c => totalTargetPixels += c)); }
     const SHAPES = [ [[1, 1, 1, 1]], [[1, 1], [1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 1], [1, 0, 0]], [[1, 1, 1], [0, 0, 1]], [[1, 1, 0], [0, 1, 1]], [[0, 1, 1], [1, 1, 0]] ];
-
     function createPiece() { const typeId = Math.floor(Math.random() * SHAPES.length); const matrix = SHAPES[typeId].map(row => [...row]); return { matrix, x: Math.floor(COLS / 2) - Math.floor(matrix[0].length / 2), y: 0 }; }
     function rotateMatrix(matrix) { const N = matrix.length; const M = matrix[0].length; const result = []; for (let i = 0; i < M; i++) { result[i] = []; for (let j = 0; j < N; j++) result[i][j] = matrix[N - 1 - j][i]; } return result; }
     function collide(arena, player) { const [m, o] = [player.matrix, player]; for (let y = 0; y < m.length; ++y) { for (let x = 0; x < m[y].length; ++x) { if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true; } } return false; }
-
-    function drawRoundedRect(x, y, width, height, radius, fill, stroke, shadowColor) {
-        ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath();
-        if (shadowColor) { ctx.shadowBlur = 15; ctx.shadowColor = shadowColor; } else { ctx.shadowBlur = 0; }
-        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
-        ctx.shadowBlur = 0;
-    }
-
-    function getPixelColor(x, y, lvl) {
-        if (lvl === 2) {
-            const px = x - 1; const py = y - 7;
-            const zoraColors = [[null,null,'#43427e','#426bda','#6986ec','#9497e8','#9296e9',null,null],[null,'#3f2c4e','#395fc8','#587fef','#aea1e3','#ebc1e2','#eac2e2','#a89fe4',null],['#3c1f1b','#3f397b','#3965de','#6485f0','#caade2','#fce4ee','#fde0ec','#c5a9e2','#617fe9'],['#351a1a','#3d3b7e','#3664dd','#547ff2','#a49ee4','#e4bce0','#e3bae1','#9f9ce6','#5079e8'],['#381916','#3f3063','#365acd','#3c6ff2','#5d82f1','#8392ea','#8391ec','#5c81ef','#3e67d7'],['#552a1b','#321b2e','#3b439b','#335edb','#366cee','#3e72f2','#3e70f1','#3965dc','#3f4a9d'],['#85532b','#351514','#3b2140','#3d4091','#3552ba','#3557c7','#3953bc','#3d438e','#3f283b'],[null,'#774325','#391714','#2f1723','#3a2344','#3c2750','#39223e','#361c22',null],[null,null,'#89572c','#66351f','#4b241a','#46231a','#5b3222',null,null]];
-            if (px >= 0 && px < 9 && py >= 0 && py < 9) return zoraColors[py][px] || COLORS.trash;
-        } else if (lvl === 3) return '#FFFFFF';
-        return COLORS.trash;
-    }
-
+    function drawRoundedRect(x, y, width, height, radius, fill, stroke, shadowColor) { ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); if (shadowColor) { ctx.shadowBlur = 15; ctx.shadowColor = shadowColor; } else { ctx.shadowBlur = 0; } if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); } ctx.shadowBlur = 0; }
+    function getPixelColor(x, y, lvl) { if (lvl === 2) { const px = x - 1; const py = y - 7; const zoraColors = [[null,null,'#43427e','#426bda','#6986ec','#9497e8','#9296e9',null,null],[null,'#3f2c4e','#395fc8','#587fef','#aea1e3','#ebc1e2','#eac2e2','#a89fe4',null],['#3c1f1b','#3f397b','#3965de','#6485f0','#caade2','#fce4ee','#fde0ec','#c5a9e2','#617fe9'],['#351a1a','#3d3b7e','#3664dd','#547ff2','#a49ee4','#e4bce0','#e3bae1','#9f9ce6','#5079e8'],['#381916','#3f3063','#365acd','#3c6ff2','#5d82f1','#8392ea','#8391ec','#5c81ef','#3e67d7'],['#552a1b','#321b2e','#3b439b','#335edb','#366cee','#3e72f2','#3e70f1','#3965dc','#3f4a9d'],['#85532b','#351514','#3b2140','#3d4091','#3552ba','#3557c7','#3953bc','#3d438e','#3f283b'],[null,'#774325','#391714','#2f1723','#3a2344','#3c2750','#39223e','#361c22',null],[null,null,'#89572c','#66351f','#4b241a','#46231a','#5b3222',null,null]]; if (px >= 0 && px < 9 && py >= 0 && py < 9) return zoraColors[py][px] || COLORS.trash; } else if (lvl === 3) return '#FFFFFF'; return COLORS.trash; }
     function calculateScore() { let filled = 0; board.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0 && LOGO_TARGET[y][x] === 1) filled++; }); }); return Math.floor((filled / totalTargetPixels) * 100); }
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         LOGO_TARGET.forEach((row, y) => { row.forEach((val, x) => { if (val === 1 && board[y][x] === 0) { let fill = COLORS.ghostFill; let border = COLORS.ghostBorder; if(currentLevel === 2) { const pColor = getPixelColor(x, y, 2); if(pColor && pColor !== COLORS.trash) { border = pColor.replace('rgb', 'rgba').replace(')', ', 0.3)'); fill = 'rgba(0,0,0,0)'; } } else if (currentLevel === 3) { fill = 'rgba(255, 255, 255, 0.2)'; border = 'rgba(255, 255, 255, 0.5)'; } drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, border); } }); });
-        board.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) { const isLogo = (LOGO_TARGET[y][x] === 1); let color = COLORS.trash; let shadow = null; let highlight = null; if (isLogo) { if (currentLevel === 1) { color = COLORS.main; shadow = COLORS.main; highlight = COLORS.highlight; } else if (currentLevel === 2) { color = getPixelColor(x, y, 2); shadow = null; highlight = null; } else if (currentLevel === 3) { color = '#FFFFFF'; shadow = 'rgba(255, 255, 255, 0.8)'; highlight = null; } } drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, color, null, shadow); if (highlight && currentLevel === 1) { ctx.fillStyle = highlight; ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4); } } }); });
+        board.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) { const isLogo = (LOGO_TARGET[y][x] === 1); let color = COLORS.trash; let shadow = null; let highlight = null; if (isLogo) { if (currentLevel === 1) { color = COLORS.main; shadow = COLORS.main; highlight = COLORS.highlight; } else if (currentLevel === 2) { color = getPixelColor(x, y, 2); shadow = COLORS.main; highlight = null; } else if (currentLevel === 3) { color = '#FFFFFF'; shadow = 'rgba(255, 255, 255, 0.8)'; highlight = null; } } drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, color, null, shadow); if (highlight && currentLevel === 1) { ctx.fillStyle = highlight; ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4); } } }); });
         progressBar.style.width = calculateScore() + '%';
+        
+        // DRAW GHOST PIECE
+        if (currentPiece && !isVictoryPhase) {
+            let ghost = { matrix: currentPiece.matrix, x: currentPiece.x, y: currentPiece.y };
+            while (!collide(board, ghost)) { ghost.y++; }
+            ghost.y--;
+            if (ghost.y !== currentPiece.y) { ghost.matrix.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) drawRoundedRect((x + ghost.x) * BLOCK_SIZE + 1, (y + ghost.y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, COLORS.ghostPieceFill, COLORS.ghostPieceBorder); }); }); }
+        }
+
         if (currentPiece && !isVictoryPhase) { currentPiece.matrix.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) drawRoundedRect((x + currentPiece.x) * BLOCK_SIZE + 1, (y + currentPiece.y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, COLORS.active); }); }); }
         if (isVictoryPhase) { ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 24px -apple-system, BlinkMacSystemFont, sans-serif"; const alpha = 0.5 + 0.5 * Math.sin(Date.now() / 150); ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 10; ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`; ctx.restore(); }
     }
@@ -538,20 +328,14 @@
 
     function showEndScreen(isWin) {
         if(isWin) {
-            isVictoryPhase = true;
-            finishTime = (Date.now() - startTime) / 1000;
-            let nextLvl = currentLevel + 1;
-            if(nextLvl <= 3 && !unlockedLevels.includes(nextLvl)) { unlockedLevels.push(nextLvl); saveProgressLocal(); }
+            isVictoryPhase = true; finishTime = (Date.now() - startTime) / 1000;
+            let nextLvl = currentLevel + 1; if(nextLvl <= 3 && !unlockedLevels.includes(nextLvl)) { unlockedLevels.push(nextLvl); saveProgressLocal(); }
             saveGameResult(currentLevel, finishTime);
             headerSub.innerText = "LEVEL COMPLETE";
             let glowColor = '#0052FF'; if (currentLevel === 2) glowColor = '#7B3FE4'; if (currentLevel === 3) glowColor = '#FFFFFF'; 
             headerSub.style.color = glowColor; headerSub.style.textShadow = `0 0 15px ${glowColor}`; headerSub.classList.add('pulse-anim');
             winDelayTimer = setTimeout(() => { isVictoryPhase = false; isGameRunning = false; cancelAnimationFrame(animationId); displayOverlay(true); }, 4000); 
-        } else { 
-            stopGameLoop(); 
-            recordFail(currentLevel);
-            displayOverlay(false); 
-        }
+        } else { stopGameLoop(); recordFail(currentLevel); displayOverlay(false); }
     }
 
     function displayOverlay(isWin) {
@@ -559,8 +343,7 @@
         const title = document.getElementById('endTitle'); const nextBtn = document.getElementById('btnNextLevel'); const timeDisplay = document.getElementById('finalTimeDisplay');
         if (isWin) {
             title.innerText = "LEVEL COMPLETE"; timeDisplay.innerText = `TIME: ${finishTime.toFixed(2)}s`;
-            let winColor = '#0052FF'; let nextLvlId = 2;
-            if (currentLevel === 2) { winColor = '#7B3FE4'; nextLvlId = 3; } if (currentLevel === 3) { winColor = '#FFFFFF'; nextLvlId = 4; } 
+            let winColor = '#0052FF'; let nextLvlId = 2; if (currentLevel === 2) { winColor = '#7B3FE4'; nextLvlId = 3; } if (currentLevel === 3) { winColor = '#FFFFFF'; nextLvlId = 4; } 
             title.style.color = winColor; title.style.textShadow = `0 0 20px ${winColor}`;
             if(currentLevel < 3) { nextBtn.style.display = 'flex'; nextBtn.innerText = `UNLOCK LVL ${nextLvlId} ➝`; } else { nextBtn.style.display = 'flex'; nextBtn.innerText = "SOON ➝"; }
         } else { title.innerText = "GAME OVER"; title.style.color = "#fff"; title.style.textShadow = "none"; nextBtn.style.display = 'none'; timeDisplay.innerText = ""; }
@@ -569,51 +352,11 @@
 
     function checkWinCondition() { if (calculateScore() >= 100) return true; return false; }
     function playerReset() { currentPiece = createPiece(); if (collide(board, currentPiece)) showEndScreen(false); }
-    
-    // --- THIS WAS MISSING AND CAUSED THE BUG ---
-    function playerDrop() {
-        if(isVictoryPhase) return;
-        currentPiece.y++;
-        if (collide(board, currentPiece)) {
-            currentPiece.y--;
-            merge(board, currentPiece);
-            if (checkWinCondition()) {
-                showEndScreen(true);
-            } else {
-                if(isGameRunning) playerReset();
-            }
-        }
-        dropCounter = 0;
-    }
-    // -------------------------------------------
-
+    function playerDrop() { if(isVictoryPhase) return; currentPiece.y++; if (collide(board, currentPiece)) { currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } } dropCounter = 0; }
     function playerHardDrop() { if(isVictoryPhase) return; while (!collide(board, currentPiece)) { currentPiece.y++; } currentPiece.y--; merge(board, currentPiece); if (checkWinCondition()) { showEndScreen(true); } else { if(isGameRunning) playerReset(); } draw(); }
     function playerMove(dir) { if(isVictoryPhase) return; currentPiece.x += dir; if (collide(board, currentPiece)) currentPiece.x -= dir; }
-    
-    function restartLevel() { 
-        clearTimeout(winDelayTimer); isVictoryPhase = false; startTime = Date.now(); 
-        headerSub.innerText = "FILL THE SHAPE"; headerSub.style.color = "#666"; headerSub.style.textShadow = "none"; headerSub.classList.remove('pulse-anim'); 
-        timerDisplay.innerText = "0.00s"; initLogo(currentLevel); board = Array.from({length: ROWS}, () => Array(COLS).fill(0)); 
-        isGameRunning = true; endScreen.classList.remove('visible'); playerReset(); update(); 
-    }
-    
-    function update(time = 0) { 
-        if (!isGameRunning && !isVictoryPhase) return; 
-        const deltaTime = time - lastTime; lastTime = time; dropCounter += deltaTime; 
-        
-        // LIVE TIMER UPDATE
-        if(isGameRunning && !isVictoryPhase) {
-            const currentSec = (Date.now() - startTime) / 1000;
-            timerDisplay.innerText = currentSec.toFixed(2) + "s";
-        }
-
-        // --- PROGRESSIVE SPEED ---
-        let speed = DROP_SPEEDS[currentLevel] || 800;
-        if (!isVictoryPhase && dropCounter > speed) playerDrop(); 
-        
-        draw(); 
-        animationId = requestAnimationFrame(update); 
-    }
+    function restartLevel() { clearTimeout(winDelayTimer); isVictoryPhase = false; startTime = Date.now(); headerSub.innerText = "FILL THE SHAPE"; headerSub.style.color = "#666"; headerSub.style.textShadow = "none"; headerSub.classList.remove('pulse-anim'); timerDisplay.innerText = "0.00s"; initLogo(currentLevel); board = Array.from({length: ROWS}, () => Array(COLS).fill(0)); isGameRunning = true; endScreen.classList.remove('visible'); playerReset(); update(); }
+    function update(time = 0) { if (!isGameRunning && !isVictoryPhase) return; const deltaTime = time - lastTime; lastTime = time; dropCounter += deltaTime; if(isGameRunning && !isVictoryPhase) { timerDisplay.innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s"; } let speed = DROP_SPEEDS[currentLevel] || 800; if (!isVictoryPhase && dropCounter > speed) playerDrop(); draw(); animationId = requestAnimationFrame(update); }
 
     const addClick = (id, fn) => { document.getElementById(id).addEventListener('click', (e) => { e.preventDefault(); if(isGameRunning) fn(); }); };
     addClick('btnLeft', () => playerMove(-1)); addClick('btnRight', () => playerMove(1)); addClick('btnRotate', () => playerRotate());
