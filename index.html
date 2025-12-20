@@ -148,6 +148,8 @@
         .reward-title { font-size: 12px; color: var(--gold-accent); font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         .reward-desc { font-size: 11px; color: #fff; margin-bottom: 3px; line-height: 1.4; }
         .reward-sub { font-size: 10px; color: #888; font-style: italic; margin-bottom: 8px; }
+        .reward-sub span { color: #fff; font-weight: bold; }
+        
         .btn-buy-token {
             background: var(--gold-accent); color: #000; border: none;
             padding: 6px 12px; border-radius: 15px;
@@ -156,7 +158,15 @@
         }
         .btn-buy-token:active { transform: scale(0.95); opacity: 0.9; }
 
-        .lb-header { display: flex; justify-content: space-between; font-size: 10px; color: #666; padding: 0 10px 5px 10px; font-weight: bold; text-transform: uppercase; }
+        /* HEADER FIX */
+        .lb-header { 
+            display: grid; 
+            grid-template-columns: 30px 1fr 50px 60px; /* Aligns with row */
+            width: 100%; max-width: 340px;
+            font-size: 10px; color: #666; 
+            padding: 0 10px 5px 10px; 
+            font-weight: bold; text-transform: uppercase; 
+        }
         .lb-list { width: 100%; max-width: 340px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 5px; }
         .lb-row { display: grid; grid-template-columns: 30px 1fr 50px 60px; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 13px; font-family: monospace; }
         .lb-row:first-child { color: #FFD700; } 
@@ -250,8 +260,8 @@
         <div class="reward-card">
             <div class="reward-title">🏆 SEASON REWARD</div>
             <div class="reward-desc">Top 1 Player wins <b>$BASED</b> drop.</div>
-            <div class="reward-sub">Price Up = Prize Up.</div>
-            <button class="btn-buy-token" onclick="openTokenLink()">BUY TOKEN ↗</button>
+            <div class="reward-sub">Created by <span>@fakewhoever</span></div>
+            <button class="btn-buy-token" onclick="openTokenLink()">VIEW TOKEN ↗</button>
         </div>
 
         <div id="userStats" class="lb-user-stats">
@@ -291,7 +301,7 @@
                 <div class="overlay-btns">
                     <button class="menu-btn btn-action" id="btnNextLevel" onclick="goToLevels()" style="display:none">NEXT LEVEL ➝</button>
                     
-                    <button class="menu-btn" onclick="openLeaderboard()">LEADERBOARD / PRIZE</button>
+                    <button class="menu-btn" onclick="openLeaderboard()">🏆 CHECK LEADERBOARD</button>
 
                     <div class="secondary-actions">
                         <button class="menu-btn" onclick="restartLevel()">TRY AGAIN</button>
@@ -308,8 +318,8 @@
     </div>
 
 <script>
-    // --- CONFIG: PASTE YOUR TOKEN LINK HERE ---
-    const CREATOR_TOKEN_LINK = 'https://zora.co/invite/YOUR_PROFILE_OR_TOKEN_LINK'; 
+    // --- LINK TO YOUR CREATOR TOKEN ---
+    const CREATOR_TOKEN_LINK = 'https://zora.co/@fakewhoever'; 
 
     const SUPABASE_URL = 'https://fyeczwsrzdkuoaihuovw.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZWN6d3NyemRrdW9haWh1b3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzkzNTEsImV4cCI6MjA4MTcxNTM1MX0.zPAAvHSQuls4uECEUNXSOiN-09HCzvG860LOV1OENTQ';
