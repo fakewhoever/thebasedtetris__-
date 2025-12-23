@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <meta property="og:title" content="THE BASED TETRIS">
-    <meta property="og:description" content="Top 1 wins 500,000 tokens. Play on Base.">
+    <meta property="og:description" content="Top 1 wins 500,000 $fakewhoever tokens. Play on Base.">
     <meta property="og:image" content="https://thebasedtetris.xyz/icon.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://thebasedtetris.xyz/icon.png">
@@ -411,9 +411,8 @@
                         const dist = Math.abs(diag - shimmerPos);
                         let fill = color;
                         
-                        if (dist < 1.5) {
-                            fill = '#FFFFFF'; 
-                        }
+                        // We do NOT change the base fill to white anymore.
+                        // We just draw the block as is, then overlay shine.
 
                         drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, null, null);
                         
@@ -422,12 +421,23 @@
                              ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4);
                         }
 
-                        if (dist < 1.5) {
-                            ctx.fillStyle = "rgba(255,255,255,0.8)";
-                            ctx.fillRect(x*BLOCK_SIZE+1, y*BLOCK_SIZE+1, BLOCK_SIZE-2, BLOCK_SIZE-2);
+                        if (dist < 2.0) {
+                            // Semi-transparent overlay for the shine
+                            ctx.fillStyle = "rgba(255,255,255,0.35)"; 
+                            // Using rounded rect logic for the shine too so it matches the block shape
+                            drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, "rgba(255,255,255,0.35)", null, null);
                         }
                     }
                 });
+            });
+            // Draw non-logo blocks too (trash) so they don't disappear
+            board.forEach((row, y) => { 
+                row.forEach((val, x) => { 
+                    if (val !== 0 && LOGO_TARGET[y][x] !== 1) { 
+                        let color = COLORS.trash; 
+                        drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, color, null, null); 
+                    } 
+                }); 
             });
             return; 
         }
@@ -468,13 +478,7 @@
         if(isWin) {
             isVictoryPhase = true; 
             shimmerPos = -10;
-            board.forEach((row, y) => {
-                row.forEach((val, x) => {
-                    if (val !== 0 && LOGO_TARGET[y][x] !== 1) {
-                        board[y][x] = 0;
-                    }
-                });
-            });
+            // No longer clearing board logic here
 
             finishTime = (Date.now() - startTime) / 1000;
             let nextLvl = currentLevel + 1; if(nextLvl <= 3 && !unlockedLevels.includes(nextLvl)) { unlockedLevels.push(nextLvl); saveProgressLocal(); }
