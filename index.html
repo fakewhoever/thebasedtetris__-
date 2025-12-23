@@ -399,38 +399,46 @@
                     if (val === 1) {
                         let color = COLORS.main;
                         let showHighlight = false;
+                        let shadow = null; // Default: no shadow during animation for perfromance, BUT:
 
                         if(currentLevel === 1) {
                              color = COLORS.main;
                              showHighlight = true;
+                             shadow = COLORS.main; // RESTORED GLOW FOR LVL 1
                         }
                         if(currentLevel === 2) color = getPixelColor(x,y,2) || COLORS.main;
-                        if(currentLevel === 3) color = '#FFFFFF';
+                        if(currentLevel === 3) {
+                            color = '#FFFFFF';
+                            shadow = 'rgba(255, 255, 255, 0.5)'; // Soft glow for Coinbase
+                        }
                         
                         const diag = x + y;
                         const dist = Math.abs(diag - shimmerPos);
                         let fill = color;
                         
-                        // We do NOT change the base fill to white anymore.
-                        // We just draw the block as is, then overlay shine.
-
-                        drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, null, null);
+                        drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, null, shadow);
                         
+                        // Keep Level 1 highlight visible
                         if (showHighlight) {
                              ctx.fillStyle = COLORS.highlight;
                              ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4);
                         }
 
+                        // Shine Logic
                         if (dist < 2.0) {
-                            // Semi-transparent overlay for the shine
-                            ctx.fillStyle = "rgba(255,255,255,0.35)"; 
-                            // Using rounded rect logic for the shine too so it matches the block shape
-                            drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, "rgba(255,255,255,0.35)", null, null);
+                            let shineFill = "rgba(255,255,255,0.35)"; // Default white shine
+                            
+                            // LEVEL 3 SPECIAL: Blue Shine because logo is white
+                            if (currentLevel === 3) {
+                                shineFill = "rgba(0, 82, 255, 0.5)"; 
+                            }
+
+                            drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, shineFill, null, null);
                         }
                     }
                 });
             });
-            // Draw non-logo blocks too (trash) so they don't disappear
+            
             board.forEach((row, y) => { 
                 row.forEach((val, x) => { 
                     if (val !== 0 && LOGO_TARGET[y][x] !== 1) { 
