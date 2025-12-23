@@ -404,7 +404,8 @@
                         if(currentLevel === 1) {
                              color = COLORS.main;
                              showHighlight = true;
-                             shadow = COLORS.main; // RESTORED GLOW FOR LVL 1
+                             // HARDCODE SHADOW FOR VICTORY TO ENSURE IT DOESNT DIM
+                             shadow = '#0052FF'; 
                         }
                         if(currentLevel === 2) color = getPixelColor(x,y,2) || COLORS.main;
                         if(currentLevel === 3) {
@@ -428,7 +429,7 @@
                         if (dist < 2.0) {
                             let shineFill = "rgba(255,255,255,0.35)"; // Default white shine
                             
-                            // LEVEL 3 SPECIAL: Blue Shine because logo is white
+                            // LEVEL 3 SPECIAL: VERY SUBTLE Blue Shine
                             if (currentLevel === 3) {
                                 shineFill = "rgba(0, 82, 255, 0.15)"; 
                             }
