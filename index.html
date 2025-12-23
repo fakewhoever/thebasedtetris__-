@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>THE BASED TETRIS</title>
     
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="theme-color" content="#0052FF">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -271,7 +272,7 @@
         
         <div class="reward-card">
             <div class="reward-title">🏆 SEASON REWARD</div>
-            <div class="reward-desc">Top 1 player wins <b>500,000</b> of my<br>creator token <b>$fakewhoever</b> airdrop</div>
+            <div class="reward-desc">Top 1 player wins airdrop <b>500,000</b><br>of my creator token <b>$fakewhoever</b></div>
             <button class="btn-buy-token" onclick="openTokenLink()">VIEW TOKEN ↗</button>
         </div>
 
@@ -389,7 +390,6 @@
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // --- VICTORY ANIMATION PHASE ---
         if (isVictoryPhase) {
             shimmerPos += 0.3;
             if(shimmerPos > COLS + ROWS) shimmerPos = -10;
@@ -397,26 +397,31 @@
             LOGO_TARGET.forEach((row, y) => {
                 row.forEach((val, x) => {
                     if (val === 1) {
-                        // Base logo color
                         let color = COLORS.main;
+                        let showHighlight = false;
+
+                        if(currentLevel === 1) {
+                             color = COLORS.main;
+                             showHighlight = true;
+                        }
                         if(currentLevel === 2) color = getPixelColor(x,y,2) || COLORS.main;
                         if(currentLevel === 3) color = '#FFFFFF';
                         
-                        // Shimmer logic
                         const diag = x + y;
                         const dist = Math.abs(diag - shimmerPos);
                         let fill = color;
                         
-                        // Add white shine
                         if (dist < 1.5) {
                             fill = '#FFFFFF'; 
-                        } else if (dist < 3) {
-                             // slight tint
-                             // (simplified for 2d canvas: just draw white with opacity over it)
                         }
 
                         drawRoundedRect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2, BLOCK_RADIUS, fill, null, null);
                         
+                        if (showHighlight) {
+                             ctx.fillStyle = COLORS.highlight;
+                             ctx.fillRect(x*BLOCK_SIZE+4, y*BLOCK_SIZE+4, 4, 4);
+                        }
+
                         if (dist < 1.5) {
                             ctx.fillStyle = "rgba(255,255,255,0.8)";
                             ctx.fillRect(x*BLOCK_SIZE+1, y*BLOCK_SIZE+1, BLOCK_SIZE-2, BLOCK_SIZE-2);
@@ -427,7 +432,6 @@
             return; 
         }
 
-        // --- NORMAL GAME DRAW ---
         LOGO_TARGET.forEach((row, y) => { 
             row.forEach((val, x) => { 
                 if (val === 1 && board[y][x] === 0) { 
@@ -459,13 +463,11 @@
     function stopGameLoop() { isGameRunning = false; cancelAnimationFrame(animationId); clearTimeout(winDelayTimer); isVictoryPhase = false; }
 
     function showEndScreen(isWin) {
-        // HIDE CONTROLS
-        document.querySelector('.controls-area').style.display = 'none';
+        document.querySelector('.controls-area').style.visibility = 'hidden';
 
         if(isWin) {
             isVictoryPhase = true; 
             shimmerPos = -10;
-            // Clear trash blocks instantly
             board.forEach((row, y) => {
                 row.forEach((val, x) => {
                     if (val !== 0 && LOGO_TARGET[y][x] !== 1) {
@@ -481,7 +483,6 @@
             let glowColor = '#0052FF'; if (currentLevel === 2) glowColor = '#7B3FE4'; if (currentLevel === 3) glowColor = '#FFFFFF'; 
             headerSub.style.color = glowColor; headerSub.style.textShadow = `0 0 15px ${glowColor}`; headerSub.classList.add('pulse-anim');
             
-            // Allow animation loop to run for visual effect before overlay
             winDelayTimer = setTimeout(() => { displayOverlay(true); }, 3000); 
         } else { 
             stopGameLoop(); 
@@ -505,14 +506,12 @@
             title.style.color = winColor; title.style.textShadow = `0 0 20px ${winColor}`;
             if(currentLevel < 3) { nextBtn.style.display = 'flex'; nextBtn.innerText = `UNLOCK LVL ${nextLvlId} ➝`; } else { nextBtn.style.display = 'flex'; nextBtn.innerText = "SOON ➝"; }
             
-            // SHOW ROW BUTTONS
             document.querySelector('.row-btns').style.display = 'flex';
             btnTry.style.display = 'block';
             btnMenu.style.display = 'block';
             btnLb.style.display = 'flex';
         } else { 
             title.innerText = "GAME OVER"; title.style.color = "#fff"; title.style.textShadow = "none"; timeDisplay.innerText = ""; 
-            // Hide row container logic for lose screen if simple list is preferred, or reuse it
              document.querySelector('.row-btns').style.display = 'flex';
             btnTry.style.display = 'block';
             btnMenu.style.display = 'block';
@@ -549,14 +548,12 @@
     function playerMove(dir) { if(isVictoryPhase) return; currentPiece.x += dir; if (collide(board, currentPiece)) currentPiece.x -= dir; }
     
     function restartLevel() { 
-        // SHOW CONTROLS AGAIN
-        document.querySelector('.controls-area').style.display = 'grid';
+        document.querySelector('.controls-area').style.visibility = 'visible';
 
         clearTimeout(winDelayTimer); isVictoryPhase = false; startTime = Date.now(); headerSub.innerText = "FILL THE SHAPE"; headerSub.style.color = "#666"; headerSub.style.textShadow = "none"; headerSub.classList.remove('pulse-anim'); timerDisplay.innerText = "0.00s"; initLogo(currentLevel); board = Array.from({length: ROWS}, () => Array(COLS).fill(0)); isGameRunning = true; endScreen.classList.remove('visible'); playerReset(); update(); 
     }
     
     function update(time = 0) { 
-        // Allow loop to run during victory for animation
         if (!isGameRunning && !isVictoryPhase) return; 
         
         const deltaTime = time - lastTime; lastTime = time; dropCounter += deltaTime; 
